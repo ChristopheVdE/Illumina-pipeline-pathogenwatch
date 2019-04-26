@@ -1,4 +1,0 @@
-
-Starting MultiQC on: ../00_dataset/QC_fastqc
-Done, output file can be found in: ../00_dataset/QC_MultiQC
-
