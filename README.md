@@ -3,6 +3,7 @@
 Containerised analysis pipeline for Salmonella thypi using Docker containers
 
 Pipline steps:
+
   0) creating soft links
   1) QC on raw data using FastQC and MultiQC
   2) Trimmomatic
