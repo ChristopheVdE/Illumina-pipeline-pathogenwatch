@@ -2,14 +2,9 @@
     #server version of ubuntu = 18.04
 FROM ubuntu:18.04
 
-# Set the working directory to /app
-WORKDIR /app
-
-# Copy the current directory contents into the container at /app
-COPY . /app
-
-# Install any needed packages specified in requirements.txt
-    #--> no special packages needed to create softlinks
+# add the 01-softlinks.sh script to the container
+    # ADD "location of file on host" file destination in container"
+ADD ./01_softlinks.sh ~/01_softlinks.sh
 
 # Run 01-softlinks.sh when the container launches
-CMD ["bin/bash", "sh 01-softlinks.sh"]
+CMD ["~/01_softlinks.sh"]
