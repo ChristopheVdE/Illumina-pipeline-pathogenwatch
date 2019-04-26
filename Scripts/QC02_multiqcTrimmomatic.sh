@@ -15,14 +15,16 @@ outputFolder=./01_trimmomatic/QC_fastqc;
 #CREATE OUTPUTFOLDER IF NOT EXISTS
 mkdir -p ${outputFolder};
 #REDIRECT OUPUT COMMANDLINE (STDOUT) AND ERRORS (STDERR) INTO FILE
-exec 2> ${outputFolder}/stdout_err.txt;
+exec 2>&1 | tee ${outputFolder}/stdout_err.txt;
 
 #-----------------------------------------------------------------------------------------------------------
 
 #RUN MultiQC-------------------------------------------------------------------------------------------------
 echo
 echo "Starting MultiQC on: ${inputFolder}"
+echo "----------"
 multiqc ${inputFolder} -o ${outputFolder}
+echo "----------"
 echo "Done, output file can be found in: ${outputFolder}"
 echo
 #-----------------------------------------------------------------------------------------------------------
