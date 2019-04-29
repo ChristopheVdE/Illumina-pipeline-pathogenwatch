@@ -1,5 +1,4 @@
 # use official ubuntu runtime as parent image
-    #server version of openjdk (java) = 10.0.2+13
 FROM ubuntu:18.04
 
 # download and install wget
@@ -8,7 +7,7 @@ RUN  apt-get update \
   && apt-get install -y zip \
   && rm -rf /var/lib/apt/lists/*
 
-# download and install openJDK 10.0.2+13
+# download and install openJDK 10.0.2+13 (server version of openjdk (java) = 10.0.2+13)
 RUN wget "https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_linux-x64_bin.tar.gz"
 RUN tar xvf openjdk-10*_bin.tar.gz
 
