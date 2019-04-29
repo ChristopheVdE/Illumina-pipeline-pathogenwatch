@@ -28,9 +28,8 @@ ENV PATH /usr/local/bin:$PATH
 # the raw-data-folder of the host can also be added to the container like this --> but the folder location will be static
     # specify the raw-data-folder in the "$docker run ..." command to make the location dynamic
     
-# add the 01-softlinks.sh script to the container
-    ADD ./QC01_fastqcRawData.sh ~/QC01_fastqcRawData.sh 
+# add the FastQC-scripts (pre and post-trimming) to the container
+    ADD ./QC01_fastqcRawData.sh ~/Scripts/QC01_fastqcRawData.sh 
+    ADD ./QC02_fastqcTrimmomatic.sh ~/Scripts/QC02_fastqcTrimmomatic.sh
     # Usage: "ADD 'location of file/folder on host' 'file/folder destination in container' "
 
-# Run 01-softlinks.sh when the container launches
-CMD ["~/QC01_fastqcRawData.sh"]
