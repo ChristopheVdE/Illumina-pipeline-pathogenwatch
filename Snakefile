@@ -3,6 +3,8 @@ origin = input("Input the full path/location of the folder with the raw-data to 
 import os
 samples = os.listdir(origin)
 
+#==========================================================================
+
 # Pipeline step1: copying files from original raw data folder to data-folder of current analysis
 rule copy_files:
     input: 
@@ -11,9 +13,12 @@ rule copy_files:
         expand("data/00_rawdata/{sample}",sample=samples)
     message:
         "Please wait while the files are being copied"
-    shell:"""
-        cp {input} data/00_rawdata/
-    """
+    shell:
+        "cp {input} data/00_rawdata/"
+    
+
+#===========================================================================
+                            # Not done
 
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
 rule fastqc:
@@ -21,6 +26,10 @@ rule fastqc:
         expand("data/00_rawdata/{sample}.fastq.gz",sample=samples)
     output:
         "data/01_QC-rawdata/"
+    message:
+        "Analyzing raw-data with FastQC"
+    docker:
+        "docker://"
     script:
         "QC01_fastqcRawData.sh"
 
