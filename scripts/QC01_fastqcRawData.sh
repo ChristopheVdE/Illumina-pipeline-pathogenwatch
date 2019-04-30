@@ -9,22 +9,13 @@
 
 
 #VALIDATE NR OF PARAMETERS----------------------------------------------------------------------------------
-function usage() {
-	errorcode=" \nERROR -> This script need 1 parameters:\n
-		1: number of threads\n"; 
-		
-	echo -e ${errorcode};
-	exit 1;
-}
-if [ "$#" -ne 1 ]; then
-	usage
-fi
+	# parameters are provided by snakefile (hardcoded)
 #-----------------------------------------------------------------------------------------------------------
 
 #SET VARIABLES----------------------------------------------------------------------------------------------
-THREADS=$1;
-inputFolder=../00_dataset
-outputFolder=../00_dataset/QC_fastqc;
+#THREADS = specified by $snakemake -j
+inputFolder= ~/data/00_Rawdata
+outputFolder= ~/data/01_QC-rawdata/QC_fastqc;
 #-----------------------------------------------------------------------------------------------------------
 
 #FASTQC PRE-START-------------------------------------------------------------------------------------------
