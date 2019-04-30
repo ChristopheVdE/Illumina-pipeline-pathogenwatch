@@ -15,8 +15,8 @@ RUN cd SPAdes-3.13.1-Linux/bin/
 #check versions of installed packages
 RUN python --version
 
-# add the FastQC-scripts (pre and post-trimming) to the container
-    ADD ./03-spades.sh ~/Scripts/03_spades.sh
+# add the Spades-script to the container
+    ADD ./03_spades.sh ~/Scripts/03_spades.sh
     # Usage: "ADD 'location of file/folder on host' 'file/folder destination in container' "
 
 
