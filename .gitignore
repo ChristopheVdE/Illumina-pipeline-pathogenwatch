@@ -1,2 +1,4 @@
 .snakemake
 *.gz
+scripts/code-test.py
+scripts/code-test

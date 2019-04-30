@@ -6,6 +6,7 @@ RUN  apt-get update \
   && apt-get install -y wget \
   && apt-get install -y zip \
   && apt-get install -y perl \
+  && apt-get install -y libfontconfig1 \
   && rm -rf /var/lib/apt/lists/*
 
 # download and install fastqc
