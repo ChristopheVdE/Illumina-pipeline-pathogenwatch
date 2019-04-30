@@ -2,3 +2,8 @@
 *.gz
 scripts/code-test.py
 scripts/code-test
+*.html
+*.zip
+*.fo
+*.txt
+*.png
