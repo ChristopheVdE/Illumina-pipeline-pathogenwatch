@@ -5,9 +5,12 @@ Containerised analysis pipeline for Salmonella thypi using Docker containers and
 Pipline steps:
 
   Done: 
+  
   0) copying files for  original location to the current-analysis folder (data/)
   1) QC on raw data using FastQC
+  
   WIP:
+  
   2) QC on raw data using MultiQC
   2) Trimmomatic
   3) QC on trimmed data using FastQC
