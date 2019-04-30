@@ -40,19 +40,19 @@ rule fastqc_raw:
     input:
         expand("data/00_Rawdata/{sample_ext}",sample_ext=samples_ext)
     output:
-        expand("data/01_QC-rawdata/QC_fastqc/{sample}_fastq.html",sample=samples)
+        expand("data/01_QC-rawdata/QC_fastqc/{sample}_fastqc.html",sample=samples)
     message:
-        "Analyzing raw-data with FastQC using Docker-container fastqc:1.2"
+        "Analyzing raw-data with FastQC using Docker-container fastqc:1.3"
     shell:
         #"docker run fastqc:1.1 -v ./data/:~/data/"
-        "docker run -it --mount src=`pwd`/data,target=/home/data/,type=bind fastqc:1.2 /home/Scripts/QC01_fastqcRawData.sh"
+        "docker run -it --mount src=`pwd`/data,target=/home/data/,type=bind fastqc:1.3 /home/Scripts/QC01_fastqcRawData.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step3: running multiqc on the raw-data in the current-analysis folder
 
 rule multiqc_raw:
     input:
-        expand("data/01_QC-rawdata/QC_fastqc/{sample}_fastq.html",sample=samples)
+        expand("data/01_QC-rawdata/QC_fastqc/{sample}_fastqc.html",sample=samples)
     output:
         "directory(data/01_QC01-Rawdata/MultiQC)"
     message:
