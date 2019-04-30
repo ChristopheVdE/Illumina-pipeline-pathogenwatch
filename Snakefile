@@ -29,10 +29,9 @@ rule copy_files:
         expand("data/00_Rawdata/{sample_ext}",sample_ext=samples_ext)
     message:
         "Please wait while the files are being copied"
-    run:
-        "mkdir -p data/00_Rawdata/",
-        for i in origin:
-            "cp i data/00_Rawdata/"
+    shell:
+        "mkdir -p data/00_Rawdata/ && \
+        cp {origin}/* data/00_Rawdata/"
     
 #--------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
@@ -43,10 +42,10 @@ rule fastqc_raw:
     output:
         expand("data/01_QC-rawdata/QC_fastqc/{sample}_fastq.html",sample=samples)
     message:
-        "Analyzing raw-data with FastQC using Docker-container fastqc:1.0"
+        "Analyzing raw-data with FastQC using Docker-container fastqc:1.2"
     shell:
-        "docker run christophevde/fastqc:1.0 scripts/QC01_fastqcRawData.sh -v ./data/ ~/data/ "
-        # docker run 'image' 'command' 'mounted volume'
+        #"docker run fastqc:1.1 -v ./data/:~/data/"
+        "docker run -it --mount src=`pwd`/data,target=/home/data/,type=bind fastqc:1.2 /home/Scripts/QC01_fastqcRawData.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step3: running multiqc on the raw-data in the current-analysis folder

@@ -9,38 +9,30 @@
 
 
 #VALIDATE NR OF PARAMETERS----------------------------------------------------------------------------------
-function usage() {
-	errorcode=" \nERROR -> This script need 1 parameters:\n
-		1: number of threads\n"; 
-		
-	echo -e ${errorcode};
-	exit 1;
-}
-if [ "$#" -ne 1 ]; then
-	usage
-fi
+	# parameters are provided by snakefile (hardcoded)
 #-----------------------------------------------------------------------------------------------------------
 
 #SET VARIABLES----------------------------------------------------------------------------------------------
-THREADS=$1;
-inputFolder=../00_dataset
-outputFolder=../00_dataset/QC_fastqc;
+#THREADS = specified by $snakemake -j
+inputFolder=/home/data/00_Rawdata
+outputFolder=/home/data/01_QC-rawdata/QC_fastqc;
 #-----------------------------------------------------------------------------------------------------------
 
 #FASTQC PRE-START-------------------------------------------------------------------------------------------
 #CREATE OUTPUTFOLDER IF NOT EXISTS
 mkdir -p ${outputFolder};
 #REDIRECT OUPUT COMMANDLINE (STDOUT) AND ERRORS (STDERR) INTO FILE
-exec &> ${outputFolder}/stdout_err.txt;
+exec 2>&1 | tee ${outputFolder}/stdout_err.txt;
 #-----------------------------------------------------------------------------------------------------------
 
 
 #RUN FASTQC-------------------------------------------------------------------------------------------------
-for i in $( ls ${inputFolder} | grep fastq.gz); do
-	echo -e "STARTING ${id} \n";
-	fastqc --extract -t ${THREADS} -o ${outputFolder} ${inputFolder}/${i};
-	echo -e "\n ${id} FINISHED \n";
+for i in $(ls ${inputFolder} | grep fastq.gz); do
+     echo -e "STARTING $i \n";
+     fastqc --extract -o ${outputFolder} ${inputFolder}/${i};
+     echo -e "\n ${id} FINISHED \n";
 done	
+
 #-----------------------------------------------------------------------------------------------------------
 
 
