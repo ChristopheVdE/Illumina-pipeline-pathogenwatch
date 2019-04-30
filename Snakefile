@@ -1,58 +1,66 @@
 # ask for input directory
 origin = input("Input the full path/location of the folder with the raw-data to be analysed:\n")
 
-# creating sample-list
+# creating sample-list (has file extensions)
 import os
 samples_ext = os.listdir(origin)
 
-#removing file extensions for samples
+#removing file extensions for samples_ext
 samples = []
-for sample in samples:
-        samples.append(sample.replace('.fastq.gz', ''))
+for sample_ext in samples_ext:
+        samples.append(sample_ext.replace('.fastq.gz', ''))
 
 #--------------------------------------------------------------------------
 
 rule all:
     input:
-        expand("data/00_rawdata/{sample}.fastq.gz",sample=samples),
-        expand("data/01_QC-rawdata/{sample}.html",sample=samples)
+        "directory(data/01_QC01-Rawdata/MultiQC)"
         #"directory(data/02_Trimming/*)",
         #"directory(data/03_QC02-Trimmed/*)",
         #"directory(data/04_SPAdes/*)"
 
 #--------------------------------------------------------------------------
-
 # Pipeline step1: copying files from original raw data folder to data-folder of current analysis
+
 rule copy_files:
     input: 
-        expand(origin+"/{sample}",sample=samples)
+        expand(origin+"/{sample_ext}",sample_ext=samples_ext)
     output:
-        expand("data/00_rawdata/{sample}",sample=samples)
+        expand("data/00_Rawdata/{sample_ext}",sample_ext=samples_ext)
     message:
         "Please wait while the files are being copied"
-    shell:
-        "cp {input} data/00_rawdata/"
+    run:
+        "mkdir -p data/00_Rawdata/",
+        for i in origin:
+            "cp i data/00_Rawdata/"
     
-
 #--------------------------------------------------------------------------
-
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
-"input_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe(data/00_rawdata))))"
-"print(input_folder)"
 
-rule fastqc:
+rule fastqc_raw:
     input:
-        expand("data/00_rawdata/{sample}.fastq.gz",sample=samples)
+        expand("data/00_Rawdata/{sample_ext}",sample_ext=samples_ext)
     output:
-        expand("data/01_QC-rawdata/{sample}.html",sample=samples)
+        expand("data/01_QC-rawdata/QC_fastqc/{sample}_fastq.html",sample=samples)
     message:
         "Analyzing raw-data with FastQC using Docker-container fastqc:1.0"
-    docker:
-        "docker run fastqc:1.0 -v input_folder C01_fastqcRawData.sh"
+    shell:
+        "docker run christophevde/fastqc:1.0 scripts/QC01_fastqcRawData.sh -v ./data/ ~/data/ "
+        # docker run 'image' 'command' 'mounted volume'
 
 #--------------------------------------------------------------------------
+# Pipeline step3: running multiqc on the raw-data in the current-analysis folder
 
-
-
-        
+rule multiqc_raw:
+    input:
+        expand("data/01_QC-rawdata/QC_fastqc/{sample}_fastq.html",sample=samples)
+    output:
+        "directory(data/01_QC01-Rawdata/MultiQC)"
+    message:
+        "Analyzing raw-data with MultiQC using Docker-container multiqc:1.0"
+    #docker:
+    #    "docker://christophevde/multiqc:1.0"
+    script:
+        "scripts/QC01_multiqc.sh"
+               
 # /media/sf_Courses/BIT11-Stage/Data/Fastq
