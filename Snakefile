@@ -65,8 +65,8 @@ rule Trimming:
         expand("data/00_Rawdata/{sample_ext}",sample_ext=samples_ext),
         "data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"
     output:
-        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_P.fastq.gz",sample=samples),
-        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_U.fastq.gz",sample=samples)
+        expand("data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),
+        expand("data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz",sample=samples)
     message:
         "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:1.1"
     shell:
