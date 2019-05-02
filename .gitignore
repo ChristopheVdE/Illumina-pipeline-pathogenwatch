@@ -7,3 +7,4 @@ scripts/code-test
 *.fo
 *.txt
 *.png
+*.log
