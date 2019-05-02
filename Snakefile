@@ -77,8 +77,8 @@ rule Trimming:
 
 rule fastqc_trimmed:
     input:
-        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_P.fastq.gz",sample=samples),
-        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_U.fastq.gz",sample=samples)
+        expand("data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),
+        expand("data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz",sample=samples)
     output:
         expand("data/03_QC-Trimmomatic/QC_fastqc/{sample}_U_fastqc.html",sample=samples),
         expand("data/03_QC-Trimmomatic/QC_fastqc/{sample}_P_fastqc.html",sample=samples)
