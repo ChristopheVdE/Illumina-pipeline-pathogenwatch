@@ -62,7 +62,8 @@ rule multiqc_raw:
 
 rule Trimming:
     input:
-        expand("data/00_Rawdata/{sample_ext}",sample_ext=samples_ext)
+        expand("data/00_Rawdata/{sample_ext}",sample_ext=samples_ext),
+        "data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"
     output:
         expand("data/01_QC-Rawdata/QC_fastqc/{sample}_P.fastq.gz",sample=samples),
         expand("data/01_QC-Rawdata/QC_fastqc/{sample}_U.fastq.gz",sample=samples)
