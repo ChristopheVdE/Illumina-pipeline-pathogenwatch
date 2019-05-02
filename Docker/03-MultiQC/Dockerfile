@@ -15,8 +15,8 @@ RUN python --version
 RUN pip --version
 
 # add the FastQC-scripts (pre and post-trimming) to the container
-    ADD ./QC01_multiqc.sh ~/Scripts/QC01_multiqc.sh 
-    ADD ./QC02_multiqcTrimmomatic.sh ~/Scripts/QC02_multiqcTrimmomatic.sh
+    ADD ./QC01_multiqc_raw.sh /home/Scripts/QC01_multiqc_raw.sh 
+    ADD ./QC02_multiqcTrimmomatic.sh /home/Scripts/QC02_multiqcTrimmomatic.sh
     # Usage: "ADD 'location of file/folder on host' 'file/folder destination in container' "
 
 
