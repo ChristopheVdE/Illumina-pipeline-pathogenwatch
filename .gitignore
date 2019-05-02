@@ -10,3 +10,4 @@ scripts/code-test
 *.log
 *.log
 *.json
+data/01_QC-Rawdata/QC_MultiQC/multiqc_data/multiqc.log
