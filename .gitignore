@@ -8,3 +8,5 @@ scripts/code-test
 *.txt
 *.png
 *.log
+*.log
+*.json
