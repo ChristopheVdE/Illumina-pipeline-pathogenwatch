@@ -14,8 +14,8 @@ for sample_ext in samples_ext:
 
 rule all:
     input:
-        "data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"
-        #"directory(data/01_QC02-Trimmed/MultiQC)"
+        "data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html",
+        "data/02_Trimmomatic/QC_MultiQC/multiqc_report.html"
         #"directory(data/04_SPAdes/*)"
 
 #--------------------------------------------------------------------------
@@ -64,17 +64,39 @@ rule Trimming:
     input:
         expand("data/00_Rawdata/{sample_ext}",sample_ext=samples_ext)
     output:
-        #expand("data/01_QC-Rawdata/QC_fastqc/{sample}_fastqc.html",sample=samples)
+        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_P.fastq.gz",sample=samples),
+        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_U.fastq.gz",sample=samples)
     message:
-        "Trimming raw-data with Trimmomatic using Docker-container Trimmomatic:1.0"
+        "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:1.1"
     shell:
-        "docker run -it --mount src=`pwd`/data,target=/home/data/,type=bind Trimmomatic:1.0 /home/Scripts/02_runTrimmomatic.sh"
+        "docker run -it --mount src=`pwd`/data,target=/home/data/,type=bind christophevde/trimmomatic:1.1 /home/Scripts/02_runTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step5: FastQC trimmed data
 
+rule fastqc_trimmed:
+    input:
+        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_P.fastq.gz",sample=samples),
+        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_U.fastq.gz",sample=samples)
+    output:
+        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_fastqc.html",sample=samples)
+    message:
+        "Analyzing raw-data with FastQC using Docker-container fastqc:1.4"
+    shell:
+        "docker run -it --mount src=`pwd`/data,target=/home/data/,type=bind christophevde/fastqc:1.4 /home/Scripts/QC02_fastqcTrimmomatic.sh"
+
 #--------------------------------------------------------------------------
 # Pipeline step6: MultiQC trimmed data
+
+#rule multiqc_trimmed:
+#    input:
+#        expand("data/01_QC-Rawdata/QC_fastqc/{sample}_fastqc.html",sample=samples)
+#    output:
+ #       "data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"
+ #   message:
+  #      "Analyzing raw-data with MultiQC using Docker-container multiqc:1.1"
+   # shell:
+    #    "docker run -it --mount src=`pwd`/data,target=/home/data/,type=bind christophevde/multiqc:1.1 /home/Scripts/QC01_multiqc_raw.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step7: Spades

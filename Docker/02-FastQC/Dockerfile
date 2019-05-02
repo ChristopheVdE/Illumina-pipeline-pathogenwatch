@@ -1,4 +1,4 @@
-# use official ubuntu runtime as parent image
+# use official ubuntu runtime with openjdk10.0.2 as parent image
 FROM adoptopenjdk/openjdk10:jdk-10.0.2.13
 
 # download and install wget
