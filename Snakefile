@@ -1,24 +1,33 @@
+# ask for input directory (origin)
+import os
+origin = input("Input the full path/location of the folder with the raw-data to be analysed. \
+Please check wheter upper and lower case letters are correct:\n")
+
+print("\norigin={}".format(origin))
+
+# get current directory
+location = os.getcwd()
+print("location={}".format(location))
+
 #find system-type
 import platform
 OS=platform.platform()
 
-# change the separator depending on the system
-if 'Windows' in OS == False:
-    sep = '/'
-    print("UNIX based system detected ({}), changing separator to {}".format(OS, sep))
-else:
-    sep = '\\'
-    print("Windows based system detected ({}), changing path separator to {}".format(OS, sep))
-
-
-# ask for input directory
-import os
-origin = input("Input the full path/location of the folder with the raw-data to be analysed:\n").replace('/',sep)
-print("origin={}".format(origin))
-
-# get current directory
-location = os.getcwd().replace('/',sep)
-print("location={}".format(location))
+# fix the path if system is Windows
+import string
+if OS.find("windows") == -1:
+    print("\nWindows based system detected ({}), fixing paths".format(OS))
+    for i in list(string.ascii_lowercase+string.ascii_uppercase):
+        if origin.startswith(i+":/"):
+            origin = origin.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
+        elif origin.startswith(i+":\\"):
+            origin = origin.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
+        if location.startswith(i+":/"):
+            location = location.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
+        elif location.startswith(i+":\\"):
+            location = location.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
+print("\torigin changed to: {}".format(origin))
+print("\tlocation changed to: {}\n".format(location))
 
 # creating sample-list (has file extensions)
 samples_ext = os.listdir(origin)
@@ -32,8 +41,8 @@ for sample_ext in samples_ext:
 
 rule all:
     input:
-        location+("/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html").replace('/',sep),
-        location+("/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html").replace('/',sep)
+        location+("/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"),
+        location+("/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html")
         #"directory(data/04_SPAdes/*)"
 
 #--------------------------------------------------------------------------
@@ -41,9 +50,9 @@ rule all:
 
 rule copy_files:
     input: 
-        expand(origin+("/{sample_ext}").replace('/',sep),sample_ext=samples_ext)
+        expand(origin+("/{sample_ext}"),sample_ext=samples_ext)
     output:
-        expand(location+("/data/00_Rawdata/{sample_ext}").replace('/',sep),sample_ext=samples_ext)
+        expand(location+("/data/00_Rawdata/{sample_ext}"),sample_ext=samples_ext)
     message:
         "Please wait while the files are being copied"
     shell:
@@ -54,70 +63,70 @@ rule copy_files:
 
 rule fastqc_raw:
     input:
-        expand(location+("/data/00_Rawdata/{sample_ext}").replace('/',sep),sample_ext=samples_ext)
+        expand(location+("/data/00_Rawdata/{sample_ext}"),sample_ext=samples_ext)
     output:
-        expand(location+("/data/01_QC-Rawdata/QC_fastqc/{sample}_fastqc.html").replace('/',sep),sample=samples)
+        expand(location+("/data/01_QC-Rawdata/QC_fastqc/{sample}_fastqc.html"),sample=samples)
     message:
         "Analyzing raw-data with FastQC using Docker-container fastqc:2.0"
     shell:
-        "docker run -it --mount src=({location}/data).replace('/',sep),target=/home/data/,type=bind christophevde/fastqc:2.0 /home/Scripts/QC01_fastqcRawData.sh"
+        "docker run -it --mount src={location}/data,target=/home/data/,type=bind christophevde/fastqc:2.0 /home/Scripts/QC01_fastqcRawData.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step3: running multiqc on the raw-data in the current-analysis folder
 
 rule multiqc_raw:
     input:
-        expand(location+("/data/01_QC-Rawdata/QC_fastqc/{sample}_fastqc.html").replace('/',sep),sample=samples)
+        expand(location+("/data/01_QC-Rawdata/QC_fastqc/{sample}_fastqc.html"),sample=samples)
     output:
-        ("{location}/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html").replace('/',sep)
+        ("{location}/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html")
     message:
         "Analyzing raw-data with MultiQC using Docker-container multiqc:2.0"
     shell:
-        "docker run -it --mount src=({location}/data).replace('/',sep),target=/home/data/,type=bind christophevde/multiqc:2.0 /home/Scripts/QC01_multiqc_raw.sh"
+        "docker run -it --mount src={location}/data,target=/home/data/,type=bind christophevde/multiqc:2.0 /home/Scripts/QC01_multiqc_raw.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step5: Trimming
 
 rule Trimming:
     input:
-        expand(location+("/data/00_Rawdata/{sample_ext}").replace('/',sep),sample_ext=samples_ext),
-        location+("/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html").replace('/',sep)
+        expand(location+("/data/00_Rawdata/{sample_ext}"),sample_ext=samples_ext),
+        location+("/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html")
     output:
-        expand(location+("/data/02_Trimmomatic/{sample}_P.fastq.gz").replace('/',sep),sample=samples),
-        expand(location+("/data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz").replace('/',sep),sample=samples)
+        expand(location+("/data/02_Trimmomatic/{sample}_P.fastq.gz"),sample=samples),
+        expand(location+("/data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz"),sample=samples)
     message:
         "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:1.1"
     shell:
-        "docker run -it --mount src=({location}/data).replace('/',sep),target=/home/data/,type=bind christophevde/trimmomatic:1.1 /home/Scripts/02_runTrimmomatic.sh"
+        "docker run -it --mount src={location}/data,target=/home/data/,type=bind christophevde/trimmomatic:1.1 /home/Scripts/02_runTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step5: FastQC trimmed data
 
 rule fastqc_trimmed:
     input:
-        expand(location+("/data/02_Trimmomatic/{sample}_P.fastq.gz").replace('/',sep),sample=samples),
-        expand(location+("/data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz").replace('/',sep),sample=samples)
+        expand(location+("/data/02_Trimmomatic/{sample}_P.fastq.gz"),sample=samples),
+        expand(location+("/data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz"),sample=samples)
     output:
-        expand(location+("/data/03_QC-Trimmomatic/QC_fastqc/{sample}_U_fastqc.html").replace('/',sep),sample=samples),
-        expand(location+("/data/03_QC-Trimmomatic/QC_fastqc/{sample}_P_fastqc.html").replace('/',sep),sample=samples)
+        expand(location+("/data/03_QC-Trimmomatic/QC_fastqc/{sample}_U_fastqc.html"),sample=samples),
+        expand(location+("/data/03_QC-Trimmomatic/QC_fastqc/{sample}_P_fastqc.html"),sample=samples)
     message:
         "Analyzing trimmed-data with FastQC using Docker-container fastqc:2.0"
     shell:
-        "docker run -it --mount src=({location}/data).replace('/',sep),target=/home/data/,type=bind christophevde/fastqc:2.0 /home/Scripts/QC02_fastqcTrimmomatic.sh"
+        "docker run -it --mount src={location}/data,target=/home/data/,type=bind christophevde/fastqc:2.0 /home/Scripts/QC02_fastqcTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step6: MultiQC trimmed data
 
 rule multiqc_trimmed:
     input:
-        expand(location+("/data/03_QC-Trimmomatic/QC_fastqc/{sample}_U_fastqc.html").replace('/',sep),sample=samples),
-        expand(location+("/data/03_QC-Trimmomatic/QC_fastqc/{sample}_P_fastqc.html").replace('/',sep),sample=samples)
+        expand(location+("/data/03_QC-Trimmomatic/QC_fastqc/{sample}_U_fastqc.html"),sample=samples),
+        expand(location+("/data/03_QC-Trimmomatic/QC_fastqc/{sample}_P_fastqc.html"),sample=samples)
     output:
-        ("{location}/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html").replace('/',sep)
+        ("{location}/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html")
     message:
         "Analyzing trimmed-data with MultiQC using Docker-container multiqc:2.00"
     shell:
-        "docker run -it --mount src=({location}/data).replace('/',sep),target=/home/data/,type=bind christophevde/multiqc:2.0 /home/Scripts/QC02_multiqcTrimmomatic.sh"
+        "docker run -it --mount src={location}/data,target=/home/data/,type=bind christophevde/multiqc:2.0 /home/Scripts/QC02_multiqcTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step7: Spades
