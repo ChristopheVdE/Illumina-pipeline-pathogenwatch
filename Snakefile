@@ -15,7 +15,7 @@ OS=platform.platform()
 
 # fix the path if system is Windows
 import string
-if OS.find("windows") == -1:
+if "Windows" in OS:
     print("\nWindows based system detected ({}), fixing paths".format(OS))
     for i in list(string.ascii_lowercase+string.ascii_uppercase):
         if origin.startswith(i+":/"):
@@ -26,8 +26,10 @@ if OS.find("windows") == -1:
             location = location.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
         elif location.startswith(i+":\\"):
             location = location.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-print("\torigin changed to: {}".format(origin))
-print("\tlocation changed to: {}\n".format(location))
+    print("\torigin changed to: {}".format(origin))
+    print("\tlocation changed to: {}\n".format(location))
+else:
+    print("\nUNIX based system detected ({}), paths shouldn't require fixing".format(OS))
 
 # creating sample-list (has file extensions)
 samples_ext = os.listdir(origin)
