@@ -37,6 +37,8 @@ if "Windows" in OS:
     print("\torigin changed to: {}".format(origin))
     print("\tlocation changed to: {}\n".format(location))
 else:
+    origin_m = origin
+    location_m = location
     print("\nUNIX based system detected ({}), paths shouldn't require fixing".format(OS))
 
 #--------------------------------------------------------------------------
