@@ -3,7 +3,7 @@ import platform
 OS=platform.platform()
 
 # change the separator depending on the system
-if 'Windows' in OS == True:
+if 'Windows' in OS == False:
     sep = '/'
     print("UNIX based system detected ({}), changing separator to {}".format(OS, sep))
 else:
