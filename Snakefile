@@ -47,14 +47,14 @@ rule all:                                                                       
     input:
         location+("/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"),        # output multiqc rawdata
         location+("/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html"),    # output multiqc trimmed data   
-        "{location}/data/04_SPAdes/spades.log",                                 # an outputfile from spades
-        "{location}/data/04_SPAdes/params.txt",                                 # an other outputfile from spades    
+        directory({location}/data/05_inputPathogenWatch/)                       # outputfolder from rename_files    
     output:
         directory({origin}/00_Rawdata),
         directory({origin}/01_QC-Rawdata),
         directory({origin}/02_Trimmomatic),
         directory({origin}/03_QC-Trimmomatic),
-        directory({origin}/04_SPAdes)
+        directory({origin}/04_SPAdes),
+        directory({origin}/05_inputPathogenWatch)
     message:
         "Please wait while the results are being copied back to the location of the original rawdata-files"
     shell:
@@ -158,5 +158,19 @@ rule Spades:
         "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.0"
     shell:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/SPAdes:1.0 /home/Scripts/03_spades.sh"
+
+#--------------------------------------------------------------------------
+# Pipeline step8: rename files for pathegenwatch input
+
+rule rename:
+    input:
+        "{location}/data/04_SPAdes/spades.log",     #output SPAdes
+        "{location}/data/04_SPAdes/params.txt"      #output SPAdes
+    output:
+        directory({location}/data/05_inputPathogenWatch/)
+    message:
+        "renaming files for pathogenwatch input"
+    shell:
+        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.0 /home/Scripts/05_renameFiles.sh"
 
 # /media/sf_Courses/BIT11-Stage/Data/Fastq

@@ -7,5 +7,6 @@ FROM ubuntu:18.04
     
 # add the copy_data.sh and renameFiles.sh scripts to the container
     ADD ./01_copy_rawdata.sh /home/Scripts/01_copy_rawdata.sh
+    ADD ./04_copy_results.sh /home/Scripts/04_copy_results.sh
     ADD ./renameFiles.sh /home/Scripts/renameFiles.sh
     # Usage: "ADD 'location of file/folder on host' 'file/folder destination in container' "
