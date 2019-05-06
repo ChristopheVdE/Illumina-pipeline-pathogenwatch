@@ -15,7 +15,7 @@ samples_ext = os.listdir(origin)
 #removing file extensions for samples_ext
 samples = []
 for sample_ext in samples_ext:
-        samples.append(sample_ext.replace('.fastq.gz', ''))
+    samples.append(sample_ext.replace('.fastq.gz', ''))
 
 #find system-type
 import platform
@@ -34,31 +34,33 @@ if "Windows" in OS:
             location_m = location.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
         elif location.startswith(i+":\\"):
             location_m = location.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-    print("\torigin changed to: {}".format(origin))
-    print("\tlocation changed to: {}\n".format(location))
+    print("\torigin changed to: {}".format(origin_m))
+    print("\tlocation changed to: {}\n".format(location_m))
 else:
     origin_m = origin
     location_m = location
     print("\nUNIX based system detected ({}), paths shouldn't require fixing".format(OS))
 
 #--------------------------------------------------------------------------
+# Pipeline last step: takes all results and copy's them back to the original rawdata folder
 
-rule all:                                                                       # takes all results and copy's them back to the original rawdata folder
+rule all:                                                                       
     input:
-        location+("/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"),        # output multiqc rawdata
-        location+("/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html"),    # output multiqc trimmed data   
-        directory({location}/data/05_inputPathogenWatch/)                       # outputfolder from rename_files    
-    output:
-        directory({origin}/00_Rawdata),
-        directory({origin}/01_QC-Rawdata),
-        directory({origin}/02_Trimmomatic),
-        directory({origin}/03_QC-Trimmomatic),
-        directory({origin}/04_SPAdes),
-        directory({origin}/05_inputPathogenWatch)
-    message:
-        "Please wait while the results are being copied back to the location of the original rawdata-files"
-    shell:
-        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.0 /home/Scripts/04_copy_results.sh"
+        location+("/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"),                            
+        location+("/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html"),                       
+        location+("/data/04_SPAdes/spades.log"),                                                    
+        location+("/data/04_SPAdes/params.txt")                                                      
+#    output:
+#        directory("{origin}/00_Rawdata"),
+#        directory("{origin}/01_QC-Rawdata"),
+#        directory("{origin}/02_Trimmomatic"),
+#        directory("{origin}/03_QC-Trimmomatic"),
+#        directory("{origin}/04_SPAdes"),
+#        directory("{origin}/05_inputPathogenWatch")
+#    message:
+#        "Please wait while the results are being copied back to the location of the original rawdata-files"
+#    shell:
+#        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.1 /home/Scripts/04_rename+copy.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step1: copying files from original raw data folder to data-folder of current analysis
@@ -71,7 +73,7 @@ rule copy_rawdata:
     message:
         "Please wait while the rawdata is being copied to the current-analysis folder"
     shell:
-        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.0 /home/Scripts/01_copy_rawdata.sh"
+        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.1 /home/Scripts/01_copy_rawdata.sh"
     
 #--------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
@@ -148,9 +150,9 @@ rule multiqc_trimmed:
 
 rule Spades:
     input:
-        expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),             # output trimming
-        expand(location+"/data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz",sample=samples)    # output trimming
-        "{location}/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html"                      # output multiqc-trimmed
+        expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),              # output trimming
+        expand(location+"/data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz",sample=samples),    # output trimming
+        location+("/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html")                      # output multiqc-trimmed
     output:
         "{location}/data/04_SPAdes/spades.log",
         "{location}/data/04_SPAdes/params.txt"
@@ -160,17 +162,5 @@ rule Spades:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/SPAdes:1.0 /home/Scripts/03_spades.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step8: rename files for pathegenwatch input
-
-rule rename:
-    input:
-        "{location}/data/04_SPAdes/spades.log",     #output SPAdes
-        "{location}/data/04_SPAdes/params.txt"      #output SPAdes
-    output:
-        directory({location}/data/05_inputPathogenWatch/)
-    message:
-        "renaming files for pathogenwatch input"
-    shell:
-        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.0 /home/Scripts/05_renameFiles.sh"
 
 # /media/sf_Courses/BIT11-Stage/Data/Fastq
