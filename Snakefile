@@ -60,33 +60,20 @@ rule all:
 #    message:
 #        "Please wait while the results are being copied back to the location of the original rawdata-files"
 #    shell:
-#        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.3 /home/Scripts/04_rename+copy.sh"
-
-#--------------------------------------------------------------------------
-# Pipeline step0.5: putting the rawdata into the correct file-structure (for later steps)
-
-rule filestructure:
-    input: 
-        expand(origin+"/{sample_ext}",sample_ext=samples_ext)
-    output:
-        expand(origin+"/00_Rawdata/{sample_ext}",sample_ext=samples_ext)
-    message:
-        "Please wait while the rawdata is being put into the correct file structure"
-    shell:
-        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.3 /home/Scripts/00_filestructure.sh"
+#        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.4 /home/Scripts/04_rename+copy.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step1: copying files from original raw data folder to data-folder of current analysis
 
 rule copy_rawdata:
     input: 
-        expand(origin+"/00_Rawdata/{sample_ext}",sample_ext=samples_ext)
+        expand(origin+"/{sample_ext}",sample_ext=samples_ext)
     output:
         expand(location+"/data/00_Rawdata/{sample_ext}",sample_ext=samples_ext)
     message:
         "Please wait while the rawdata is being copied to the current-analysis folder"
     shell:
-        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.3 /home/Scripts/01_copy_rawdata.sh"
+        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.4 /home/Scripts/01_copy_rawdata.sh"
     
 #--------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
@@ -110,9 +97,9 @@ rule multiqc_raw:
     output:
         "{location}/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"
     message:
-        "Analyzing raw-data with MultiQC using Docker-container multiqc:2.0"
+        "Analyzing raw-data with MultiQC using Docker-container multiqc:2.1"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:2.0 /home/Scripts/QC01_multiqc_raw.sh"
+        "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:2.1 /home/Scripts/QC01_multiqc_raw.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step5: Trimming
@@ -152,9 +139,9 @@ rule multiqc_trimmed:
     output:
         "{location}/data/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html"
     message:
-        "Analyzing trimmed-data with MultiQC using Docker-container multiqc:2.00"
+        "Analyzing trimmed-data with MultiQC using Docker-container multiqc:2.1"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:2.0 /home/Scripts/QC02_multiqcTrimmomatic.sh"
+        "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:2.1 /home/Scripts/QC02_multiqcTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step7: SPAdes
