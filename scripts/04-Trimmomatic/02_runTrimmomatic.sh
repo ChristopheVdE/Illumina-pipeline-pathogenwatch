@@ -19,19 +19,6 @@ outputFolder=/home/data/02_Trimmomatic
 ADAPTERFILE='/home/adapters/NexteraPE-PE.fa';
 #-----------------------------------------------------------------------------------------------------------
 
-
-#CREATE SAMPLELIST------------------------------------------------------------------------------------------
-ls -a ${inputFolder} > Samplelist.txt;
-sed 's/_L001_R1_001.fastq.gz//g' Samplelist.txt > SamplelistII.txt;
-sed 's/_L001_R2_001.fastq.gz//g' SamplelistII.txt > SamplelistIII.txt; 
-#Only keep the unique strings:
-uniq -d SamplelistIII.txt > sampleList.txt; 
-#Remove old samplelists:
-rm Samplelist.txt;
-rm SamplelistII.txt;
-rm SamplelistIII.txt;
-#-----------------------------------------------------------------------------------------------------------
-
 #TRIMMOMATIC PRE-START--------------------------------------------------------------------------------------
 #CREATE OUTPUTFOLDER IF NOT EXISTS
 mkdir -p ${outputFolder};
@@ -40,7 +27,7 @@ exec 2>&1 | tee ${outputFolder}/stdout_err.txt;
 #-----------------------------------------------------------------------------------------------------------
 
 #RUN TRIMMOMATIC--------------------------------------------------------------------------------------------
-for i in `cat sampleList.txt`; do
+for i in `cat /home/data/sampleList.txt`; do
 	echo -e "STARTING ${i} \n";
 	java -jar /home/Trimmomatic-0.39/trimmomatic-0.39.jar  \
 	PE -phred33 -trimlog ${outputFolder}/trimlog.txt \

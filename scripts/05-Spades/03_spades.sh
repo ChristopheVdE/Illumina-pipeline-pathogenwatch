@@ -13,36 +13,42 @@
 
 #SET VARIABLES---------------------------------------------------------------------
 	#THREADS = $1 --> specified by $snakemake -j
-rawsampleFolder=/home/data/00_Rawdata
-inputFolder=/home/data/02_Trimmomatic
-ouputFolder=/home/data/04_Spades;
+inputSpades=/home/data/02_Trimmomatic
+outputSpades=/home/data/04_Spades
+outputPathwatch=/home/data/05_inputPathogenWatch
+sampleList=/home/data/sampleList.txt
 #----------------------------------------------------------------------------------
 
-#CREATE SAMPLELIST-----------------------------------------------------------------
-ls -a ${rawsampleFolder} > Samplelist.txt;
-sed 's/_L001_R1_001.fastq.gz//g' Samplelist.txt > SamplelistII.txt;
-sed 's/_L001_R2_001.fastq.gz//g' SamplelistII.txt > SamplelistIII.txt; 
-#Only keep the unique strings:
-uniq -d SamplelistIII.txt > sampleList.txt; 
-#Remove old samplelists:
-rm Samplelist.txt;
-rm SamplelistII.txt;
-rm SamplelistIII.txt;
-#----------------------------------------------------------------------------------
+#============================
+# Part1: Spades
+#============================
 
 #CREATE OUTPUTFOLDER IF NOT EXISTS------------------------------------------------- 
-mkdir -p ${ouputFolder};
+mkdir -p ${outputSpades};
 #----------------------------------------------------------------------------------
 
 #RUNNING SPADES--------------------------------------------------------------------
-for i in `cat sampleList.txt`; do
+for i in `cat ${sampleList}`; do
 	echo -e "STARTING ${i} \n";	
 	/SPAdes-3.13.1-Linux/bin/spades.py --pe1-1 ${inputFolder}/${i}_L001_R1_001_P.fastq.gz \
 	--pe1-2 ${inputFolder}/${i}_L001_R2_001_P.fastq.gz \
 	--tmp-dir /home/SPades/temp/ \
-	-o ${ouputFolder}/${i}; 
+	-o ${outputSpades}/${i}; 
 done
 #----------------------------------------------------------------------------------
-	
+
+#============================
+# Part2: Input pathogenwatch
+#============================
+
+#RENAME RESULTS-----------------------------------------------------------------
+mkdir -p ${outputPathwatch}
+
+for i in `cat ${sampleList}`; do
+	cd ${outputSpades}/${i}
+	mv contigs.fasta ${i}.fasta
+	cp ${i}.fasta ${outputPathwatch}
+done
+#----------------------------------------------------------------------------------
 
 	

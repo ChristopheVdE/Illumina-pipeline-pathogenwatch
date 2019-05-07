@@ -62,7 +62,7 @@ rule all:
 #    message:
 #        "Please wait while the results are being copied back to the location of the original rawdata-files"
 #    shell:
-#        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.4 /home/Scripts/04_rename+copy.sh"
+#        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.4 /home/Scripts/04_copy_results.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step1: copying files from original raw data folder to data-folder of current analysis
@@ -104,12 +104,27 @@ rule multiqc_raw:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:2.1 /home/Scripts/QC01_multiqc_raw.sh"
 
 #--------------------------------------------------------------------------
+# Pipeline step4: Samplelist
+
+rule Samplelist:
+    input:
+        expand(location+"/data/00_Rawdata/{sample_ext}",sample_ext=samples_ext),    #the rawdata (output copy_rawdata rule)
+        location+"/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"               #output multiqc raw (required so that the tasks don't run simultaniously and their outpur gets mixed in the terminal)
+    output:
+        location+"/data/sampleList.txt"
+    message:
+        "Creating a temporary Samplelist"
+    shell:
+        "docker run -it -v {location_m}/data:/home/data/ christophevde/ubuntu_bash:1.4 /home/Scripts/samplelist.sh"
+
+#--------------------------------------------------------------------------
 # Pipeline step5: Trimming
 
 rule Trimming:
     input:
         expand(location+"/data/00_Rawdata/{sample_ext}",sample_ext=samples_ext),    #the rawdata (output copy_rawdata rule)
         location+"/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"               #output multiqc raw (required so that the tasks don't run simultaniously and their outpur gets mixed in the terminal)
+        location+"/data/samplelist.txt"
     output:
         expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),
         expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples)
@@ -119,7 +134,7 @@ rule Trimming:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/trimmomatic:1.1 /home/Scripts/02_runTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step5: FastQC trimmed data (paired reads only)
+# Pipeline step6: FastQC trimmed data (paired reads only)
 
 rule fastqc_trimmed:
     input:
@@ -133,7 +148,7 @@ rule fastqc_trimmed:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/fastqc:2.1 /home/Scripts/QC02_fastqcTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step6: MultiQC trimmed data (paired reads only) 
+# Pipeline step7: MultiQC trimmed data (paired reads only) 
 
 rule multiqc_trimmed:
     input:
@@ -146,15 +161,16 @@ rule multiqc_trimmed:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:2.1 /home/Scripts/QC02_multiqcTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step7: SPAdes
+# Pipeline step8: SPAdes
 
-rule Spades:
+rule Spades_&_InputPathogenwatch :
     input:
         expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),    # output trimming
         expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples),    # output trimming
         location+("/data/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html")    # output multiqc-trimmed
     output:
         expand(location+"/data/04_SPAdes/{id}/dataset.info",id=ids),
+        directory(location+"/data/05_inputPathogenWatch")
     message:
         "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.6"
     shell:
