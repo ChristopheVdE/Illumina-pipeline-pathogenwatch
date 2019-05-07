@@ -41,6 +41,9 @@ the resulting file structure should look like this:
 
     Parent folder
       |-- Snakefile
+      |-- .snakemake
+      |     |-- log
+      |          |-- log of current analysis
       |-- data
             |-- 00_Rawdata
             |        |-- sample1.fastq.gz
