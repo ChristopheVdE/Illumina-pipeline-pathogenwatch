@@ -39,7 +39,8 @@ for i in `cat sampleList.txt`; do
 	echo -e "STARTING ${i} \n";	
 	/SPAdes-3.13.1-Linux/bin/spades.py --pe1-1 ${inputFolder}/${i}_L001_R1_001_P.fastq.gz \
 	--pe1-2 ${inputFolder}/${i}_L001_R2_001_P.fastq.gz \
-	-o ${ouputFolder};
+	--tmp-dir /home/SPades/temp/ \
+	-o ${ouputFolder}/${i}; \ 
 done
 #----------------------------------------------------------------------------------
 	

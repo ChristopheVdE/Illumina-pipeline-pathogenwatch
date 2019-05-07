@@ -14,8 +14,11 @@ samples_ext = os.listdir(origin)
 
 #removing file extensions for samples_ext
 samples = []
+ids =[]
 for sample_ext in samples_ext:
-    samples.append(sample_ext.replace('.fastq.gz', ''))
+    samples.append(sample_ext.replace('.fastq.gz', '')),
+    ids.append(sample_ext.replace('_L001_R1_001.fastq.gz','').replace('_L001_R2_001.fastq.gz',''))
+ids = set(ids)
 
 #find system-type
 import platform
@@ -48,8 +51,7 @@ rule all:
     input:
         location+("/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"),                            
         location+("/data/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html"),                       
-        location+("/data/04_SPAdes/spades.log"),                                                    
-        location+("/data/04_SPAdes/params.txt")                                                      
+        expand(location+"/data/04_SPAdes/{id}/dataset.info",id=ids),                                             
 #    output:
 #        directory("{origin}/00_Rawdata"),
 #        directory("{origin}/01_QC-Rawdata"),
@@ -152,13 +154,10 @@ rule Spades:
         expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples),    # output trimming
         location+("/data/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html")    # output multiqc-trimmed
     output:
-        "{location}/data/04_SPAdes/spades.log",
-        "{location}/data/04_SPAdes/params.txt"
+        expand(location+"/data/04_SPAdes/{id}/dataset.info",id=ids),
     message:
-        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.3"
+        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.5"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/spades:1.3 /home/Scripts/03_spades.sh"
+        "docker run -it -v {location_m}/data:/home/data/ christophevde/spades:1.5 /home/Scripts/03_spades.sh"
 
 #--------------------------------------------------------------------------
-
-# /media/sf_Courses/BIT11-Stage/Data/Fastq
