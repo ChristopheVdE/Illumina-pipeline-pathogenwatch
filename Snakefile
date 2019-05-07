@@ -134,11 +134,11 @@ rule Trimming:
 
 rule fastqc_trimmed:
     input:
-        expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),                     #output trimmomatic
+        expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),           #output trimmomatic
         expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples)            #output trimmomatic
     output:
-        expand(location+"/data/03_QC-Trimmomatic/QC_fastqc/{sample}_U_fastqc.html",sample=samples),
-        expand(location+"/data/03_QC-Trimmomatic/QC_fastqc/{sample}_P_fastqc.html",sample=samples)
+        expand(location+"/data/03_QC-Trimmomatic_Paired/QC_fastqc/{sample}_U_fastqc.html",sample=samples),
+        expand(location+"/data/03_QC-Trimmomatic_Paired/QC_fastqc/{sample}_P_fastqc.html",sample=samples)
     message:
         "Analyzing trimmed-data with FastQC using Docker-container fastqc:2.0"
     shell:
@@ -149,8 +149,8 @@ rule fastqc_trimmed:
 
 rule multiqc_trimmed:
     input:
-        expand(location+"/data/03_QC-Trimmomatic/QC_fastqc/{sample}_U_fastqc.html",sample=samples),     #output fastqc trimmed data
-        expand(location+"/data/03_QC-Trimmomatic/QC_fastqc/{sample}_P_fastqc.html",sample=samples)      #output fastqc trimmed data
+        expand(location+"/data/03_QC-Trimmomatic_Paired/QC_fastqc/{sample}_U_fastqc.html",sample=samples),     #output fastqc trimmed data
+        expand(location+"/data/03_QC-Trimmomatic_Paired/QC_fastqc/{sample}_P_fastqc.html",sample=samples)      #output fastqc trimmed data
     output:
         "{location}/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html"
     message:
@@ -163,9 +163,9 @@ rule multiqc_trimmed:
 
 rule Spades:
     input:
-        expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),              # output trimming
+        expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),    # output trimming
         expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples),    # output trimming
-        location+("/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html")                      # output multiqc-trimmed
+        location+("/data//03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html")    # output multiqc-trimmed
     output:
         "{location}/data/04_SPAdes/spades.log",
         "{location}/data/04_SPAdes/params.txt"

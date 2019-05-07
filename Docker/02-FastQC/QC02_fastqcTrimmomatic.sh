@@ -15,7 +15,7 @@
 #SET VARIABLES----------------------------------------------------------------------------------------------
 #THREADS = specified by $snakemake -j
 inputFolder=/home/data/02_Trimmomatic
-outputFolder=/home/data/03_QC-Trimmomatic/QC_fastqc;
+outputFolder=/home/data/03_QC-Trimmomatic_Paired/QC_fastqc;
 #-----------------------------------------------------------------------------------------------------------
 
 #FASTQC PRE-START-------------------------------------------------------------------------------------------

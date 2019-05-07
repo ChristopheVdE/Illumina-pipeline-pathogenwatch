@@ -7,8 +7,8 @@
 ############################################################################################################
 
 #SET VARIABLES----------------------------------------------------------------------------------------------
-inputFolder=/home/data/03_QC-Trimmomatic/QC_fastqc/
-outputFolder=/home/data/03_QC-Trimmomatic/QC_MultiQC/;
+inputFolder=/home/data/03_QC-Trimmomatic_Paired/QC_fastqc
+outputFolder=/home/data/03_QC-Trimmomatic_Paired/QC_MultiQC/;
 #-----------------------------------------------------------------------------------------------------------
 
 #MultiQC PRE-START-------------------------------------------------------------------------------------------
