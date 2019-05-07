@@ -10,5 +10,5 @@
 # copy the 00_Rawdata into the current analysis folder
 echo -e "\nCopying files, please wait"
 mkdir -p /home/Pipeline/data/00_Rawdata
-cp -vr /home/rawdata/00_Rawdata/* /home/Pipeline/data/00_Rawdata/
+cp -vr /home/rawdata/* /home/Pipeline/data/00_Rawdata/
 echo -e "Done\n"
