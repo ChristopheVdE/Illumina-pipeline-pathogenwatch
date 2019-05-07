@@ -1,14 +1,12 @@
 .snakemake
 *.gz
-scripts/code-test.py
-scripts/code-test
 *.html
 *.zip
 *.fo
 *.txt
 *.png
 *.log
-*.log
 *.json
-data/01_QC-Rawdata/QC_MultiQC/multiqc_data/multiqc.log
 *.info
+/data
+
