@@ -34,8 +34,8 @@ if "Windows" in OS:
             location_m = location.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
         elif location.startswith(i+":\\"):
             location_m = location.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-    print("\torigin changed to: {}".format(origin_m))
-    print("\tlocation changed to: {}\n".format(location_m))
+    print("\torigin ({}) changed to: {}".format(origin,origin_m))
+    print("\tlocation ({}) changed to: {}\n".format(location,location_m))
 else:
     origin_m = origin
     location_m = location
@@ -73,7 +73,7 @@ rule copy_rawdata:
     message:
         "Please wait while the rawdata is being copied to the current-analysis folder"
     shell:
-        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.1 /home/Scripts/01_copy_rawdata.sh"
+        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.2 /home/Scripts/01_copy_rawdata.sh"
     
 #--------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
@@ -110,7 +110,7 @@ rule Trimming:
         location+"/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"               #output multiqc raw (required so that the tasks don't run simultaniously and their outpur gets mixed in the terminal)
     output:
         expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),
-        expand(location+"/data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz",sample=samples)
+        expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples)
     message:
         "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:1.1"
     shell:
@@ -122,7 +122,7 @@ rule Trimming:
 rule fastqc_trimmed:
     input:
         expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),                     #output trimmomatic
-        expand(location+"/data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz",sample=samples)            #output trimmomatic
+        expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples)            #output trimmomatic
     output:
         expand(location+"/data/03_QC-Trimmomatic/QC_fastqc/{sample}_U_fastqc.html",sample=samples),
         expand(location+"/data/03_QC-Trimmomatic/QC_fastqc/{sample}_P_fastqc.html",sample=samples)
@@ -151,7 +151,7 @@ rule multiqc_trimmed:
 rule Spades:
     input:
         expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),              # output trimming
-        expand(location+"/data/02_Trimmomatic/QC_fastqc/{sample}_U.fastq.gz",sample=samples),    # output trimming
+        expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples),    # output trimming
         location+("/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html")                      # output multiqc-trimmed
     output:
         "{location}/data/04_SPAdes/spades.log",
