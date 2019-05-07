@@ -7,6 +7,7 @@ RUN  apt-get update \
   && apt-get install -y zip \
   && apt-get install -y perl \
   && apt-get install -y libfontconfig1 \
+  && apt-get install -y dos2unix \
   && rm -rf /var/lib/apt/lists/*
 
 # download and install fastqc
@@ -27,9 +28,14 @@ ENV PATH /usr/local/bin:$PATH
 
 # add the FastQC-scripts (pre and post-trimming) to the container
     ADD ./QC01_fastqcRawData.sh /home/Scripts/QC01_fastqcRawData.sh
-    #ADD ./QC02_fastqcTrimmomatic.sh /home/Scripts/QC02_fastqcTrimmomatic.sh
+    ADD ./QC02_fastqcTrimmomatic.sh /home/Scripts/QC02_fastqcTrimmomatic.sh
     # Usage: "ADD 'location of file/folder on host' 'file/folder destination in container' "
         #abolsute paths required
 
-#auto-run command on start-up
-#CMD ["~/Scripts/QC01_fastqcRawData.sh"]
+# fix execute rights if necessairy
+    RUN chmod 755 /home/Scripts/QC01_fastqcRawData.sh
+    RUN chmod 755 /home/Scripts/QC02_fastqcTrimmomatic.sh
+# fix wrong end of lines (when comming from windows) if necessairy
+    RUN dos2unix /home/Scripts/QC01_fastqcRawData.sh
+    RUN dos2unix /home/Scripts/QC02_fastqcTrimmomatic.sh
+

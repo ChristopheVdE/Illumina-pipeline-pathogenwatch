@@ -5,6 +5,7 @@ FROM ubuntu:18.04
 RUN  apt-get update \
   && apt-get install -y python \
   && apt-get install -y python-pip \
+  && apt-get install -y dos2unix \
   && rm -rf /var/lib/apt/lists/*
 
 # download and install MultiQC
@@ -18,5 +19,10 @@ RUN pip --version
     ADD ./QC01_multiqc_raw.sh /home/Scripts/QC01_multiqc_raw.sh 
     ADD ./QC02_multiqcTrimmomatic.sh /home/Scripts/QC02_multiqcTrimmomatic.sh
     # Usage: "ADD 'location of file/folder on host' 'file/folder destination in container' "
-
+# fix execute rights if necessairy
+    RUN chmod 755 /home/Scripts/QC01_multiqc_raw.sh 
+    RUN chmod 755 /home/Scripts/QC02_multiqcTrimmomatic.sh
+# fix wrong end of lines (when comming from windows) if necessairy
+    RUN dos2unix /home/Scripts/QC01_multiqc_raw.sh 
+    RUN dos2unix /home/Scripts/QC02_multiqcTrimmomatic.sh
 

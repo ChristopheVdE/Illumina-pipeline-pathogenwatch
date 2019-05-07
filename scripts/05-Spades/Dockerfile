@@ -5,6 +5,7 @@ FROM ubuntu:18.04
 RUN  apt-get update \
   && apt-get install -y wget \
   && apt-get install -y python \
+  && apt-get install -y dos2unix \
   && rm -rf /var/lib/apt/lists/*
 
 # download and install SPAdes
@@ -16,7 +17,11 @@ RUN cd SPAdes-3.13.1-Linux/bin/
 RUN python --version
 
 # add the Spades-script to the container
-    ADD ./03_spades.sh ~/Scripts/03_spades.sh
+    ADD ./03_spades.sh /home/Scripts/03_spades.sh
     # Usage: "ADD 'location of file/folder on host' 'file/folder destination in container' "
+# fix execute rights if necessairy
+    RUN chmod 755 /home/Scripts/03_spades.sh
+# fix wrong end of lines (when comming from windows) if necessairy
+    RUN dos2unix /home/Scripts/03_spades.sh
 
 

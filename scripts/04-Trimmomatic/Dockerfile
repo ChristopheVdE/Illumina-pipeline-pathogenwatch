@@ -6,6 +6,7 @@ FROM adoptopenjdk/openjdk10:jdk-10.0.2.13
 RUN  apt-get update \
   && apt-get install -y wget \
   && apt-get install -y zip \
+  && apt-get install -y dos2unix \
   && rm -rf /var/lib/apt/lists/*
 
 # download and install fastqc
@@ -25,7 +26,12 @@ ENV PATH /usr/local/bin:$PATH
     # specify the raw-data-folder in the "$docker run ..." command to make the location dynamic
     
 # add the Trimmomatic-script to the container
-ADD ./02_runTrimmomatic.sh /home/Scripts/02_runTrimmomatic.sh
+    ADD ./02_runTrimmomatic.sh /home/Scripts/02_runTrimmomatic.sh
+# fix execute rights if necessairy
+    RUN chmod 755 /home/Scripts/02_runTrimmomatic.sh
+# fix wrong end of lines (when comming from windows) if necessairy
+    RUN dos2unix /home/Scripts/02_runTrimmomatic.sh
+
 # add the adaptor file to the container
 ADD ./NexteraPE-PE.fa /home/adapters/NexteraPE-PE.fa
     # Usage: "ADD 'location of file/folder on host' 'file/folder destination in container' "

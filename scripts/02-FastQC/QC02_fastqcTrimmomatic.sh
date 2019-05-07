@@ -15,7 +15,7 @@
 #SET VARIABLES----------------------------------------------------------------------------------------------
 #THREADS = specified by $snakemake -j
 inputFolder=/home/data/02_Trimmomatic
-outputFolder=/home/data/03_QC-Trimmomatic/QC_fastqc;
+outputFolder=/home/data/03_QC-Trimmomatic_Paired/QC_fastqc;
 #-----------------------------------------------------------------------------------------------------------
 
 #FASTQC PRE-START-------------------------------------------------------------------------------------------
@@ -26,9 +26,9 @@ exec 2>&1 | tee ${outputFolder}/stdout_err.txt;
 #-----------------------------------------------------------------------------------------------------------
 
 
-#RUN FASTQC-------------------------------------------------------------------------------------------------
-for i in $(ls ${inputFolder} | grep fastq.gz); do
-     echo -e "STARTING $i \n";
+#RUN FASTQC on Paired end reads-----------------------------------------------------------------------------
+for i in $(ls ${inputFolder} | grep _P.fastq.gz); do
+     echo -e "STARTING FastQC on paired reads of $i \n";
      fastqc --extract -o ${outputFolder} ${inputFolder}/${i};
      echo -e "\n ${id} FINISHED \n";
 done	
