@@ -7,11 +7,15 @@
 #USAGE: ./01_copy_rawdata.sh ${input} ${output}
 ###################################################################################
 
-# copy the rawdata-files to the 'current analysis data-folder'
+# put the rawdata into the correct file-structure 
+    #(used for final step in the pipeline: copying results back to original data location)
+echo -e "\nCreating correct file structure" 
+mkdir -p /home/rawdata/00_Rawdata/
+mv -v /home/rawdata/*.fastq.gz /home/rawdata/00_Rawdata/
+echo -e "Done"
+
+# copy the 00_Rawdata into the current analysis folder
 echo -e "\nCopying files, please wait"
-    # put the rawdata into the correct file-structure 
-mv /home/rawdata/* /home/rawdata/00_Rawdata/
-    # copy the 00_Rawdata into the current analysis folder
 mkdir -p /home/Pipeline/data/00_Rawdata
-cp -vr /home/rawdata/00_Rawdata/ /home/Pipeline/data/00_Rawdata/
+cp -vr /home/rawdata/00_Rawdata/* /home/Pipeline/data/00_Rawdata/
 echo -e "Done\n"
