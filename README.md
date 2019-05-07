@@ -19,7 +19,7 @@ To run the pipeline the following programs are required. The required installati
  - snakemake
  
 ## Pipeline
-### Steps
+### Preformed steps
 The Pipline is controlled by Snakemake using the Snakefile found in this repository. Snakemake will read the rules specified in this file and chain them togheter in the correct order for the analysis (don't change this file unless you know what you are doing, one little change can break the entire pipeline). 
 
 Snakemake will preform the following steps durig the analysis. Each step is specified as a rule in the Snakefile and will be executed in a docker container created for that specific task:
@@ -36,7 +36,7 @@ Snakemake will preform the following steps durig the analysis. Each step is spec
     6) copy all results back to the original location (clean/ empty the current-analysis folder)
     7) Use results in Pathogenwatch.com (manual step)
   
-### results
+### Results
 the resulting file structure should look like this:
 
     Parent folder
