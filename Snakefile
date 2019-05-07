@@ -156,8 +156,8 @@ rule Spades:
     output:
         expand(location+"/data/04_SPAdes/{id}/dataset.info",id=ids),
     message:
-        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.5"
+        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.6"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/spades:1.5 /home/Scripts/03_spades.sh"
+        "docker run -it -v {location_m}/data:/home/data/ christophevde/spades:1.6 /home/Scripts/03_spades.sh"
 
 #--------------------------------------------------------------------------
