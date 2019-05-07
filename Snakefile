@@ -47,14 +47,14 @@ else:
 rule all:                                                                       
     input:
         location+("/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"),                            
-        location+("/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html"),                       
+        location+("/data/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html"),                       
         location+("/data/04_SPAdes/spades.log"),                                                    
         location+("/data/04_SPAdes/params.txt")                                                      
 #    output:
 #        directory("{origin}/00_Rawdata"),
 #        directory("{origin}/01_QC-Rawdata"),
 #        directory("{origin}/02_Trimmomatic"),
-#        directory("{origin}/03_QC-Trimmomatic"),
+#        directory("{origin}/03_QC-Trimmomatic_Paired"),
 #        directory("{origin}/04_SPAdes"),
 #        directory("{origin}/05_inputPathogenWatch")
 #    message:
@@ -97,7 +97,7 @@ rule fastqc_raw:
     output:
         expand(location+"/data/01_QC-Rawdata/QC_fastqc/{sample}_fastqc.html",sample=samples)
     message:
-        "Analyzing raw-data with FastQC using Docker-container fastqc:2.0"
+        "Analyzing raw-data with FastQC using Docker-container fastqc:2.1"
     shell:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/fastqc:2.1 /home/Scripts/QC01_fastqcRawData.sh"
 
@@ -130,29 +130,27 @@ rule Trimming:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/trimmomatic:1.1 /home/Scripts/02_runTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step5: FastQC trimmed data
+# Pipeline step5: FastQC trimmed data (paired reads only)
 
 rule fastqc_trimmed:
     input:
         expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),           #output trimmomatic
         expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples)            #output trimmomatic
     output:
-        expand(location+"/data/03_QC-Trimmomatic_Paired/QC_fastqc/{sample}_U_fastqc.html",sample=samples),
         expand(location+"/data/03_QC-Trimmomatic_Paired/QC_fastqc/{sample}_P_fastqc.html",sample=samples)
     message:
-        "Analyzing trimmed-data with FastQC using Docker-container fastqc:2.0"
+        "Analyzing trimmed-data with FastQC using Docker-container fastqc:2.1"
     shell:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/fastqc:2.1 /home/Scripts/QC02_fastqcTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step6: MultiQC trimmed data
+# Pipeline step6: MultiQC trimmed data (paired reads only) 
 
 rule multiqc_trimmed:
     input:
-        expand(location+"/data/03_QC-Trimmomatic_Paired/QC_fastqc/{sample}_U_fastqc.html",sample=samples),     #output fastqc trimmed data
         expand(location+"/data/03_QC-Trimmomatic_Paired/QC_fastqc/{sample}_P_fastqc.html",sample=samples)      #output fastqc trimmed data
     output:
-        "{location}/data/03_QC-Trimmomatic/QC_MultiQC/multiqc_report.html"
+        "{location}/data/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html"
     message:
         "Analyzing trimmed-data with MultiQC using Docker-container multiqc:2.00"
     shell:
@@ -165,7 +163,7 @@ rule Spades:
     input:
         expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),    # output trimming
         expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples),    # output trimming
-        location+("/data//03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html")    # output multiqc-trimmed
+        location+("/data/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html")    # output multiqc-trimmed
     output:
         "{location}/data/04_SPAdes/spades.log",
         "{location}/data/04_SPAdes/params.txt"
