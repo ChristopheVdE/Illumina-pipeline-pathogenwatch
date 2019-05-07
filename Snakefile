@@ -155,9 +155,9 @@ rule Spades:
         "{location}/data/04_SPAdes/spades.log",
         "{location}/data/04_SPAdes/params.txt"
     message:
-        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.0"
+        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.3"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/SPAdes:1.0 /home/Scripts/03_spades.sh"
+        "docker run -it -v {location_m}/data:/home/data/ christophevde/spades:1.3 /home/Scripts/03_spades.sh"
 
 #--------------------------------------------------------------------------
 
