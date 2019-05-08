@@ -13,12 +13,12 @@ To run the pipeline the following programs are required. The required installati
       - Debian: https://docs.docker.com/install/linux/docker-ce/debian/
       - Fedora: https://docs.docker.com/install/linux/docker-ce/fedora/
  - python3:
-       1) open terminal
-       2) execute: *'syntaxt to download packages'* pyhton3
+      1) open terminal
+      2) execute: *'syntaxt to download packages'* pyhton3    
  - MiniConda: https://docs.conda.io/en/latest/miniconda.html
  - snakemake: 
-       1) open a terminal
-       2) execute: "conda install -c bioconda -c conda-forge snakemake"
+      1) open a terminal
+      2) execute: "conda install -c bioconda -c conda-forge snakemake"
 
 ### Windows
  - docker: https://docs.docker.com/toolbox/overview/
