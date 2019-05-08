@@ -1,3 +1,7 @@
+# timer
+import time
+start = time.time()
+
 # ask for input directory (origin)
 import os
 origin = input("\nInput the full path/location of the folder with the raw-data to be analysed.\n\
@@ -169,3 +173,6 @@ rule Spades_InputPathogenwatch:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/spades:1.8 /home/Scripts/03_spades.sh"
 
 #--------------------------------------------------------------------------
+
+end = time.time()
+print(end - start)
