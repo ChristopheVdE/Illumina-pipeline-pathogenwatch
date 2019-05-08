@@ -7,16 +7,26 @@ Containerised analysis pipeline for Salmonella thypi using Docker containers and
 To run the pipeline the following programs are required. The required installation files can be found in the installer-folder provided in this repository.
 
 ### Linux
- - docker
- - python3
- - MiniConda
- - snakemake
+ - docker: 
+      - CentOS: https://docs.docker.com/install/linux/docker-ce/centos/
+      - Ubuntu: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+      - Debian: https://docs.docker.com/install/linux/docker-ce/debian/
+      - Fedora: https://docs.docker.com/install/linux/docker-ce/fedora/
+ - python3:
+       1) open terminal
+       2) execute: *'syntaxt to download packages'* pyhton3
+ - MiniConda: https://docs.conda.io/en/latest/miniconda.html
+ - snakemake: 
+       1) open a terminal
+       2) execute: "conda install -c bioconda -c conda-forge snakemake"
 
 ### Windows
- - docker
- - python3
- - MiniConda
- - snakemake
+ - docker: https://docs.docker.com/toolbox/overview/
+ - python3: https://www.python.org/downloads/
+ - MiniConda: https://docs.conda.io/en/latest/miniconda.html
+ - snakemake: 
+      1) open anaconda terminal
+      2) execute: "conda install -c bioconda -c conda-forge snakemake"
  
 ## Pipeline
 ### Preformed steps
@@ -31,10 +41,8 @@ Snakemake will preform the following steps durig the analysis. Each step is spec
     3) QC on trimmed data using FastQC
     4) QC on trimmed data usisg MultiQC
     4) Spades
-    
     5) File renaming
-    6) copy all results back to the original location (clean/ empty the current-analysis folder)
-    7) Use results in Pathogenwatch.com (manual step)
+    6) Use results in Pathogenwatch.com (manual step)
   
 ### Results
 the resulting file structure should look like this:
