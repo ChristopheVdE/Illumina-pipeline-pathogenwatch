@@ -14,7 +14,7 @@ To run the pipeline the following programs are required. The required installati
       - Fedora: https://docs.docker.com/install/linux/docker-ce/fedora/
  - python3:
       1) open terminal
-      2) execute: *'syntaxt to download packages'* pyhton3    
+      2) execute: *'syntax to download packages'* pyhton3    
  - MiniConda: https://docs.conda.io/en/latest/miniconda.html
  - snakemake: 
       1) open a terminal
