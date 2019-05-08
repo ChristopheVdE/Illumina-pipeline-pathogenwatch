@@ -24,6 +24,8 @@ ADAPTERFILE='/home/adapters/NexteraPE-PE.fa';
 mkdir -p ${outputFolder};
 #REDIRECT OUPUT COMMANDLINE (STDOUT) AND ERRORS (STDERR) INTO FILE
 exec 2>&1 | tee ${outputFolder}/stdout_err.txt;
+#Fix possible EOL errors in sampleList.txt
+dos2unix /home/data/sampleList.txt
 #-----------------------------------------------------------------------------------------------------------
 
 #RUN TRIMMOMATIC--------------------------------------------------------------------------------------------
@@ -37,4 +39,3 @@ for i in `cat /home/data/sampleList.txt`; do
 	ILLUMINACLIP:${ADAPTERFILE}:2:40:15 LEADING:20 TRAILING:20 SLIDINGWINDOW:4:20 MINLEN:36;
 done
 #-----------------------------------------------------------------------------------------------------------
-	

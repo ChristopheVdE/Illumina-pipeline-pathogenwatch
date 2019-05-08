@@ -1,7 +1,8 @@
 # ask for input directory (origin)
 import os
-origin = input("Input the full path/location of the folder with the raw-data to be analysed. \
-Please check wheter upper and lower case letters are correct:\n")
+origin = input("\nInput the full path/location of the folder with the raw-data to be analysed.\n\
+Please check wheter upper and lower case letters are correct:\n\
+If using Windows: it's advised to have the rawdata on the C-drive before the analysis, otherwise there might be some problems finding the location\n")
 
 print("\norigin={}".format(origin))
 
@@ -19,6 +20,12 @@ for sample_ext in samples_ext:
     samples.append(sample_ext.replace('.fastq.gz', '')),
     ids.append(sample_ext.replace('_L001_R1_001.fastq.gz','').replace('_L001_R2_001.fastq.gz',''))
 ids = set(ids)
+
+#create samplelist.txt
+file = open(location+"/data/sampleList.txt",mode="w")
+for i in ids:
+    file.write(i+"\n")
+file.close()
 
 #find system-type
 import platform
@@ -62,7 +69,7 @@ rule all:
 #    message:
 #        "Please wait while the results are being copied back to the location of the original rawdata-files"
 #    shell:
-#        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.4 /home/Scripts/04_copy_results.sh"
+#        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.5 /home/Scripts/04_copy_results.sh"
 
 #--------------------------------------------------------------------------
 # Pipeline step1: copying files from original raw data folder to data-folder of current analysis
@@ -75,7 +82,7 @@ rule copy_rawdata:
     message:
         "Please wait while the rawdata is being copied to the current-analysis folder"
     shell:
-        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.4 /home/Scripts/01_copy_rawdata.sh"
+        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.5 /home/Scripts/01_copy_rawdata.sh"
     
 #--------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
@@ -104,37 +111,22 @@ rule multiqc_raw:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:2.1 /home/Scripts/QC01_multiqc_raw.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step4: Samplelist
-
-rule Samplelist:
-    input:
-        expand(location+"/data/00_Rawdata/{sample_ext}",sample_ext=samples_ext),    #the rawdata (output copy_rawdata rule)
-        location+"/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"               #output multiqc raw (required so that the tasks don't run simultaniously and their outpur gets mixed in the terminal)
-    output:
-        location+"/data/sampleList.txt"
-    message:
-        "Creating a temporary Samplelist"
-    shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/ubuntu_bash:1.4 /home/Scripts/samplelist.sh"
-
-#--------------------------------------------------------------------------
-# Pipeline step5: Trimming
+# Pipeline step4: Trimming
 
 rule Trimming:
     input:
         expand(location+"/data/00_Rawdata/{sample_ext}",sample_ext=samples_ext),    #the rawdata (output copy_rawdata rule)
-        location+"/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html"               #output multiqc raw (required so that the tasks don't run simultaniously and their outpur gets mixed in the terminal)
-        location+"/data/samplelist.txt"
+        location+"/data/01_QC-Rawdata/QC_MultiQC/multiqc_report.html",              #output multiqc raw (required so that the tasks don't run simultaniously and their outpur gets mixed in the terminal)
     output:
         expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),
         expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples)
     message:
-        "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:1.1"
+        "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:1.3"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/trimmomatic:1.1 /home/Scripts/02_runTrimmomatic.sh"
+        "docker run -it -v {location_m}/data:/home/data/ christophevde/trimmomatic:1.3 /home/Scripts/02_runTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step6: FastQC trimmed data (paired reads only)
+# Pipeline step5: FastQC trimmed data (paired reads only)
 
 rule fastqc_trimmed:
     input:
@@ -148,7 +140,7 @@ rule fastqc_trimmed:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/fastqc:2.1 /home/Scripts/QC02_fastqcTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step7: MultiQC trimmed data (paired reads only) 
+# Pipeline step6: MultiQC trimmed data (paired reads only) 
 
 rule multiqc_trimmed:
     input:
@@ -161,9 +153,9 @@ rule multiqc_trimmed:
         "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:2.1 /home/Scripts/QC02_multiqcTrimmomatic.sh"
 
 #--------------------------------------------------------------------------
-# Pipeline step8: SPAdes
+# Pipeline step7: SPAdes
 
-rule Spades_&_InputPathogenwatch :
+rule Spades_InputPathogenwatch:
     input:
         expand(location+"/data/02_Trimmomatic/{sample}_P.fastq.gz",sample=samples),    # output trimming
         expand(location+"/data/02_Trimmomatic/{sample}_U.fastq.gz",sample=samples),    # output trimming
@@ -172,8 +164,8 @@ rule Spades_&_InputPathogenwatch :
         expand(location+"/data/04_SPAdes/{id}/dataset.info",id=ids),
         directory(location+"/data/05_inputPathogenWatch")
     message:
-        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.6"
+        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:1.8"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/spades:1.6 /home/Scripts/03_spades.sh"
+        "docker run -it -v {location_m}/data:/home/data/ christophevde/spades:1.8 /home/Scripts/03_spades.sh"
 
 #--------------------------------------------------------------------------

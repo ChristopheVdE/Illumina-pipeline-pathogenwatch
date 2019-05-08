@@ -23,6 +23,9 @@ sampleList=/home/data/sampleList.txt
 # Part1: Spades
 #============================
 
+#Fix possible EOL errors in sampleList.txt
+dos2unix /home/data/sampleList.txt
+
 #CREATE OUTPUTFOLDER IF NOT EXISTS------------------------------------------------- 
 mkdir -p ${outputSpades};
 #----------------------------------------------------------------------------------

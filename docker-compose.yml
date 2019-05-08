@@ -1,0 +1,85 @@
+version: "3"
+services:
+# Ubuntu_bash container----------------------------------------------------
+# Used for:
+    # copying files
+    # renaming files
+  bash:
+    image: christophevde/ubuntu_bash:1.1
+    deploy:
+      replicas: 5
+      # recources per replica
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+    # Map port 4000 on the host to web’s port 80.
+    ports:
+      - "4000:80"
+    # Instruct web’s containers to share port 80 via a load-balanced network called webnet
+    networks:
+      - pipeline
+# FastQC container----------------------------------------------------
+# Used for:
+    # FastQC rawdata
+    # FastQC trimmed data
+  bash:
+    image: christophevde/fastqc:2.0
+    deploy:
+      replicas: 5
+      # recources per replica
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 200M
+      restart_policy:
+        condition: on-failure
+    # Map port 4000 on the host to web’s port 80.
+    ports:
+      - "4000:80"
+    # Instruct web’s containers to share port 80 via a load-balanced network called webnet
+    networks:
+      - pipeline
+# MultiQC container----------------------------------------------------
+# Used for:
+    # MultiQC rawdata
+    # MultiQC trimmed data
+  bash:
+    image: christophevde/multiqc:2.0
+    deploy:
+      replicas: 5
+      # recources per replica
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+    # Map port 4000 on the host to web’s port 80.
+    ports:
+      - "4000:80"
+    # Instruct web’s containers to share port 80 via a load-balanced network called webnet
+    networks:
+      - pipeline
+# Trimmomatic container----------------------------------------------------
+  bash:
+    image: christophevde/trimmomatic:1.1
+    deploy:
+      replicas: 5
+      # recources per replica
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+    # Map port 4000 on the host to web’s port 80.
+    ports:
+      - "4000:80"
+    # Instruct web’s containers to share port 80 via a load-balanced network called webnet
+    networks:
+      - pipeline
+networks:
+  pipeline:
