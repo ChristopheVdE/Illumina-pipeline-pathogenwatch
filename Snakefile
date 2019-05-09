@@ -13,7 +13,7 @@ start = time.time()
 import os
 origin = input("\nInput the full path/location of the folder with the raw-data to be analysed.\n\
 Please check wheter upper and lower case letters are correct:\n\
-If using Windows: it's advised to have the rawdata on the C-drive before the analysis, otherwise there might be some problems finding the location\n")
+If using Windows: it's advised to have the rawdata on the C-drive before the analysis, otherwise there might be problems finding the location\n")
 
 print("\norigin={}".format(origin))
 
@@ -75,17 +75,8 @@ rule all:
         expand(location+"/data/{id}/01_QC-Rawdata/QC_MultiQC/multiqc_report.html",id=ids),                            
         expand(location+"/data/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html",id=ids),                       
         expand(location+"/data/{id}/04_SPAdes/dataset.info",id=ids)                                             
-#    output:
-#        directory("{origin}/00_Rawdata"),
-#        directory("{origin}/01_QC-Rawdata"),
-#        directory("{origin}/02_Trimmomatic"),
-#        directory("{origin}/03_QC-Trimmomatic_Paired"),
-#        directory("{origin}/04_SPAdes"),
-#        directory("{origin}/05_inputPathogenWatch")
-#    message:
-#        "Please wait while the results are being copied back to the location of the original rawdata-files"
-#    shell:
-#        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:1.5 /home/Scripts/04_copy_results.sh"
+    message:
+        "Analysis done, results can be found in {location}/data"
 
 #--------------------------------------------------------------------------
 # Pipeline step1: copying files from original raw data folder to data-folder of current analysis

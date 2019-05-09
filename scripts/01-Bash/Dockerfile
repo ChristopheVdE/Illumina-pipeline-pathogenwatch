@@ -19,10 +19,7 @@ RUN  apt-get update \
 # add the scripts to the container
     # Usage: "ADD 'location of file/folder on host' 'file/folder destination in container' "
     ADD ./01_copy_rawdata.sh /home/Scripts/01_copy_rawdata.sh
-    ADD ./04_copy_results.sh /home/Scripts/04_copy_results.sh
 # fix execute rights if necessairy
     RUN chmod 755 /home/Scripts/01_copy_rawdata.sh
-    RUN chmod 755 /home/Scripts/04_copy_results.sh
 # convert Windows EOL to UNIX EOL (required when scripts where manipulated in Windows)
     RUN dos2unix /home/Scripts/01_copy_rawdata.sh
-    RUN dos2unix /home/Scripts/04_copy_results.sh
