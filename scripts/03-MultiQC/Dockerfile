@@ -1,3 +1,10 @@
+############################################################################################################
+#NAME DOCKER IMAGE: christophevde/multiqc
+#AUTHOR: Christophe Van den Eynde
+#RUNNING: MULTIQC
+#USAGE: $docker run -it christophevde/multiqc
+############################################################################################################
+
 # use official ubuntu runtime as parent image
 FROM ubuntu:18.04
 

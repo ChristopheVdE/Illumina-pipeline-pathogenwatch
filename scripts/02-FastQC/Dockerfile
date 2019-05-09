@@ -1,3 +1,11 @@
+############################################################################################################
+#NAME DOCKER IMAGE: christophevde/fastqc
+#AUTHOR: Christophe Van den Eynde
+#RUNNING: TRIMMOMATIC
+#USAGE: $docker run -it christophevde/fastqc:stable
+############################################################################################################
+
+
 # use official ubuntu runtime with openjdk10.0.2 as parent image
 FROM adoptopenjdk/openjdk10:jdk-10.0.2.13
 

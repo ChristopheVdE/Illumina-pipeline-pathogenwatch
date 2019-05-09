@@ -1,3 +1,10 @@
+############################################################################################################
+#NAME DOCKER IMAGE: christophevde/spades
+#AUTHOR: Christophe Van den Eynde
+#RUNNING: TRIMMOMATIC
+#USAGE: $docker run -it christophevde/spades
+############################################################################################################
+
 # use official ubuntu runtime as parent image
 FROM ubuntu:18.04
 

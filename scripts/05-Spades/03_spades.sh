@@ -3,46 +3,51 @@
 ###################################################################################
 #NAME SCRIPT: 03_spades.sh
 #AUTHOR: Tessa de Block
+#DOCKER UPDATE: Christophe Van den Eynde
 #ASSEMBLING READS WITH SPADES
 #USAGE: ./03_SPADES.SH <number of threads> 
 ###################################################################################
 
 #VALIDATE NR OF PARAMETERS---------------------------------------------------------
-	# parameters are provided by snakefile (hardcoded)
+	# Treads are provided by snakemake
 #----------------------------------------------------------------------------------
 
-#SET VARIABLES---------------------------------------------------------------------
-	#THREADS = $1 --> specified by $snakemake -j
-rawsampleFolder=/home/data/00_Rawdata
-inputFolder=/home/data/02_Trimmomatic
-ouputFolder=/home/data/04_Spades;
-#----------------------------------------------------------------------------------
+#SPECIFY VARIABLES-----------------------------------------------------------------
+#inputSpades=/home/data/${id}/02_Trimmomatic
+#outputSpades=/home/data/${id}/04_Spades
+#outputPathwatch=/home/data/${id}/05_inputPathogenWatch
+#-----------------------------------------------------------------------------------
 
-#CREATE SAMPLELIST-----------------------------------------------------------------
-ls -a ${rawsampleFolder} > Samplelist.txt;
-sed 's/_L001_R1_001.fastq.gz//g' Samplelist.txt > SamplelistII.txt;
-sed 's/_L001_R2_001.fastq.gz//g' SamplelistII.txt > SamplelistIII.txt; 
-#Only keep the unique strings:
-uniq -d SamplelistIII.txt > sampleList.txt; 
-#Remove old samplelists:
-rm Samplelist.txt;
-rm SamplelistII.txt;
-rm SamplelistIII.txt;
-#----------------------------------------------------------------------------------
-
-#CREATE OUTPUTFOLDER IF NOT EXISTS------------------------------------------------- 
-mkdir -p ${ouputFolder};
-#----------------------------------------------------------------------------------
+#Fix possible EOL errors in sampleList.txt
+dos2unix /home/data/sampleList.txt
 
 #RUNNING SPADES--------------------------------------------------------------------
-for i in `cat sampleList.txt`; do
-	echo -e "STARTING ${i} \n";	
-	/SPAdes-3.13.1-Linux/bin/spades.py --pe1-1 ${inputFolder}/${i}_L001_R1_001_P.fastq.gz \
-	--pe1-2 ${inputFolder}/${i}_L001_R2_001_P.fastq.gz \
-	--tmp-dir /home/SPades/temp/ \
-	-o ${ouputFolder}/${i}; 
+for id in `cat /home/data/sampleList.txt`; do
+
+	#CREATE OUTPUTFOLDERS
+	mkdir -p /home/data/${id}/04_Spades
+	mkdir -p /home/data/${id}/05_inputPathogenWatch
+
+	#CREATE temp folder-content-list
+	ls /home/data/${id}/02_Trimmomatic > /home/foldercontent.txt
+	sed 's/_L001_R1_001_P.fastq.gz//g' /home/foldercontent.txt > /home/foldercontent2.txt
+	sed 's/_L001_R1_001_U.fastq.gz//g' /home/foldercontent2.txt > /home/foldercontent3.txt
+	sed 's/_L001_R2_001_P.fastq.gz//g' /home/foldercontent3.txt > /home/foldercontent4.txt
+	sed 's/_L001_R1_001_U.fastq.gz//g' /home/foldercontent4.txt > /home/foldercontent5.txt
+	uniq -d /home/foldercontent5.txt > /home/foldercontent6.txt; 
+
+	#RUN SPADES AND RENAME
+	for i in `cat /home/foldercontent6.txt`; do
+		#START SPADES
+		echo -e "STARTING ${i} \n";	
+		/SPAdes-3.13.1-Linux/bin/spades.py --pe1-1 /home/data/${id}/02_Trimmomatic/${id}_L001_R1_001_P.fastq.gz \
+		--pe1-2 /home/data/${id}/02_Trimmomatic/${id}_L001_R2_001_P.fastq.gz \
+		--tmp-dir /home/SPades/temp/ \
+		-o /home/data/${id}/04_Spades;
+		#RENAME AND MOVE RESULTS
+		cd /home/data/${id}/04_Spades
+		cp contigs.fasta /home/data/${id}/05_inputPathogenWatch/${id}.fasta
+	done
 done
-#----------------------------------------------------------------------------------
-	
 
 	
