@@ -1,5 +1,11 @@
+############################################################################################################
+#NAME DOCKER IMAGE: christophevde/trimmomatic
+#AUTHOR: Christophe Van den Eynde
+#RUNNING: TRIMMOMATIC
+#USAGE: $docker run -it christophevde/trimmomatic
+############################################################################################################
+
 # use official ubuntu runtime with openjdk10.0.2 as parent imag
-    
 FROM adoptopenjdk/openjdk10:jdk-10.0.2.13
 
 # download and install wget
