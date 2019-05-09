@@ -26,16 +26,15 @@ echo
 #RUN FASTQC-------------------------------------------------------------------------------------------------
 for id in `cat /home/data/sampleList.txt`; do
      #CREATE OUTPUTFOLDER IF NOT EXISTS
-     mkdir -p /home/data/${id}/03_QC-Trimmomatic_Paired/QC_fastqc
+     mkdir -p /home/data/${id}/03_QC-Trimmomatic_Paired/QC_FastQC
      #RUN FASTQC
      for i in $(ls /home/data/${id}/02_Trimmomatic | grep _P.fastq.gz); do
           echo -e "STARTING FastQC on paired reads of ${i} \n";
-          fastqc --extract \ 
-          -o /home/data/${id}/03_QC-Trimmomatic_Paired/QC_fastqc \
+          fastqc --extract \
+          -o /home/data/${id}/03_QC-Trimmomatic_Paired/QC_FastQC \
           /home/data/${id}/02_Trimmomatic/${i} \
-          2>&1 | tee -a /home/data/${id}/03_QC-Trimmomatic_Paired/QC_fastqc/stdout_err.txt ;
+          2>&1 | tee -a /home/data/${id}/03_QC-Trimmomatic_Paired/QC_FastQC/stdout_err.txt ;
           echo -e "\n ${i} FINISHED \n";
      done
 done
 #------------------------------------------------------------------------------------------------------------
-
