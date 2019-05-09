@@ -5,70 +5,47 @@
 #USAGE: $snakemake
 ############################################################################################################
 
-# timer
+#SNAKEMAKE RUN PREPARATION==================================================================================
+# TIMER-----------------------------------------------------------------------------------------------------
 import time
 start = time.time()
+#-----------------------------------------------------------------------------------------------------------
 
-# ask for input directory (origin)
-import os
-origin = input("\nInput the full path/location of the folder with the raw-data to be analysed.\n\
-Please check wheter upper and lower case letters are correct:\n\
-If using Windows: it's advised to have the rawdata on the C-drive before the analysis, otherwise there might be problems finding the location\n")
-
-print("\norigin={}".format(origin))
-
+# GET LOCATIONS---------------------------------------------------------------------------------------------
 # get current directory
 location = os.getcwd()
 print("location={}".format(location))
 
-# creating sample-list (has file extensions)
-samples_ext = os.listdir(origin)
+# get other locations
+env = open(location+"/enviroment.txt","r")
+for line in env.readlines():
+    if "location_m=" in line:
+        location_m = line.replace("location_m=",'').replace('\n','')
+        print(location_m)
+    elif "location=" in line:
+        location = line.replace("location=",'').replace('\n','')
+        print(location)
+    elif "origin_m=" in line:
+        origin_m = line.replace("origin_m=",'').replace('\n','')
+        print(origin_m)
+    elif "origin=" in line:
+        origin = line.replace("origin=",'').replace('\n','')
+        print(origin)
+env.close()
+#-----------------------------------------------------------------------------------------------------------
 
-#removing file extensions for samples_ext
-samples = []
-ids =[]
-for sample_ext in samples_ext:
-    samples.append(sample_ext.replace('.fastq.gz', '')),
-    ids.append(sample_ext.replace('_L001_R1_001.fastq.gz','').replace('_L001_R2_001.fastq.gz',''))
-samples= sorted(samples)
-ids = sorted(set(ids))
+#GET SAMPLE IDS---------------------------------------------------------------------------------------------
+ids = []
+samples = open(location+"/data/sampleList.txt","r")
+for line in samples.readlines():
+    ids.append(line.replace('\n',''))
+samples.close()
+#-----------------------------------------------------------------------------------------------------------
+#===========================================================================================================
 
-#create samplelist.txt
-file = open(location+"/data/sampleList.txt",mode="w")
-for i in ids:
-    file.write(i+"\n")
-file.close()
-
-# analysis date
-from datetime import datetime
-run = datetime.now().strftime("%d/%m/%Y")
-
-#find system-type
-import platform
-OS=platform.platform()
-
-# fix the path if system is Windows
-import string
-if "Windows" in OS:
-    print("\nWindows based system detected ({}), fixing paths".format(OS))
-    for i in list(string.ascii_lowercase+string.ascii_uppercase):
-        if origin.startswith(i+":/"):
-            origin_m = origin.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
-        elif origin.startswith(i+":\\"):
-            origin_m = origin.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-        if location.startswith(i+":/"):
-            location_m = location.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
-        elif location.startswith(i+":\\"):
-            location_m = location.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-    print("\torigin ({}) changed to: {}".format(origin,origin_m))
-    print("\tlocation ({}) changed to: {}\n".format(location,location_m))
-else:
-    origin_m = origin
-    location_m = location
-    print("\nUNIX based system detected ({}), paths shouldn't require fixing".format(OS))
-
-#--------------------------------------------------------------------------
-# Pipeline last step: takes all results and copy's them back to the original rawdata folder
+#SNAKEMAKE RUN==============================================================================================
+#-----------------------------------------------------------------------------------------------------------
+# Master rule, controls all other rule executions
 
 rule all:                                                                       
     input:
@@ -78,21 +55,22 @@ rule all:
     message:
         "Analysis done, results can be found in {location}/data"
 
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 # Pipeline step1: copying files from original raw data folder to data-folder of current analysis
 
 rule copy_rawdata:
     input: 
-        expand(origin+"/{sample_ext}",sample_ext=samples_ext)
+        expand(origin+"/{id}_L001_R1_001.fastq.gz",id=ids),
+        expand(origin+"/{id}_L001_R2_001.fastq.gz",id=ids)
     output:
         expand(location+"/data/{id}/00_Rawdata/{id}_L001_R1_001.fastq.gz",id=ids),
         expand(location+"/data/{id}/00_Rawdata/{id}_L001_R2_001.fastq.gz",id=ids)
     message:
         "Please wait while the rawdata is being copied to the current-analysis folder"
     shell:
-        "docker run -it -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:test /home/Scripts/01_copy_rawdata.sh"
+        "docker run -it --rm --name copy_rawdata -v /var/run/docker.sock:/var/run/docker.sock -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:test /home/Scripts/01_copy_rawdata.sh"
     
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
 
 rule fastqc_raw:
@@ -105,9 +83,9 @@ rule fastqc_raw:
     message:
         "Analyzing raw-data with FastQC using Docker-container fastqc:test"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/fastqc:test /home/Scripts/QC01_fastqcRawData.sh"
+        "docker run -it --rm --name fastqc_raw -v /var/run/docker.sock:/var/run/docker.sock -v {location_m}/data:/home/data/ christophevde/fastqc:test /home/Scripts/QC01_fastqcRawData.sh"
 
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 # Pipeline step3: running multiqc on the raw-data in the current-analysis folder
 
 rule multiqc_raw:
@@ -119,9 +97,9 @@ rule multiqc_raw:
     message:
         "Analyzing raw-data with MultiQC using Docker-container multiqc:test"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:test /home/Scripts/QC01_multiqc_raw.sh"
+        "docker run -it --rm --name multiqc_raw -v /var/run/docker.sock:/var/run/docker.sock -v {location_m}/data:/home/data/ christophevde/multiqc:test /home/Scripts/QC01_multiqc_raw.sh"
 
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 # Pipeline step4: Trimming
 
 rule Trimming:
@@ -135,9 +113,9 @@ rule Trimming:
     message:
         "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:test"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/trimmomatic:test /home/Scripts/02_runTrimmomatic.sh"
+        "docker run -it --rm --name trimmomatic -v /var/run/docker.sock:/var/run/docker.sock -v {location_m}/data:/home/data/ christophevde/trimmomatic:test /home/Scripts/02_runTrimmomatic.sh"
 
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 # Pipeline step5: FastQC trimmed data (paired reads only)
 
 rule fastqc_trimmed:
@@ -149,9 +127,9 @@ rule fastqc_trimmed:
     message:
         "Analyzing trimmed-data with FastQC using Docker-container fastqc:test"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/fastqc:test /home/Scripts/QC02_fastqcTrimmomatic.sh"
+        "docker run -it --rm --name fastqc_trim -v /var/run/docker.sock:/var/run/docker.sock -v {location_m}/data:/home/data/ christophevde/fastqc:test /home/Scripts/QC02_fastqcTrimmomatic.sh"
 
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 # Pipeline step6: MultiQC trimmed data (paired reads only) 
 
 rule multiqc_trimmed:
@@ -162,15 +140,15 @@ rule multiqc_trimmed:
     message:
         "Analyzing trimmed-data with MultiQC using Docker-container multiqc:test"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/multiqc:test /home/Scripts/QC02_multiqcTrimmomatic.sh"
+        "docker run -it --rm --name multiqc_trim -v /var/run/docker.sock:/var/run/docker.sock -v {location_m}/data:/home/data/ christophevde/multiqc:test /home/Scripts/QC02_multiqcTrimmomatic.sh"
 
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 # Pipeline step7: SPAdes
 
 rule Spades_InputPathogenwatch:
     input:
-        expand(location+"/data/{id}/02_Trimmomatic/{id}_L001_R1_001_P.fastq.gz",id=ids),   # output trimming
-        expand(location+"/data/{id}/02_Trimmomatic/{id}_L001_R2_001_U.fastq.gz",id=ids),   # output trimming
+        expand(location+"/data/{id}/02_Trimmomatic/{id}_L001_R1_001_P.fastq.gz",id=ids),                # output trimming
+        expand(location+"/data/{id}/02_Trimmomatic/{id}_L001_R2_001_U.fastq.gz",id=ids),                # output trimming
         expand(location+"/data/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html",id=ids)    # output multiqc-trimmed
     output:
         expand(location+"/data/{id}/04_SPAdes/dataset.info",id=ids),
@@ -178,9 +156,10 @@ rule Spades_InputPathogenwatch:
     message:
         "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:test"
     shell:
-        "docker run -it -v {location_m}/data:/home/data/ christophevde/spades:test /home/Scripts/03_spades.sh"
+        "docker run -it --rm --name spades -v /var/run/docker.sock:/var/run/docker.sock -v {location_m}/data:/home/data/ christophevde/spades:test /home/Scripts/03_spades.sh"
 
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
+#===========================================================================================================
 
 end = time.time()
 print(end - start)

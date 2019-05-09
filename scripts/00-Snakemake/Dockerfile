@@ -1,3 +1,10 @@
+############################################################################################################
+#NAME DOCKER IMAGE: christophevde/snakemake
+#AUTHOR: Christophe Van den Eynde
+#RUNNING: Snakemake and docker in docker
+#USAGE: $docker run -it christophevde/snakemake
+############################################################################################################
+
 FROM docker:18.09.5
 
 RUN apk --update  --repository http://dl-4.alpinelinux.org/alpine/edge/community add \
@@ -44,4 +51,4 @@ RUN snakemake --version
 ADD ./Snakefile ./Snakefile
 
 # auto run Snakefile
-CMD ["snakemake"]
+CMD [""]
