@@ -8,18 +8,19 @@
 ###################################################################################
 
 # Counting treads
-Treads=`nproc --all`
-# specifying the number of threads snakemake can use
-if ${Treads} -le 4; then 
-    s_Treads=$((${Treads}/2))
-else
-    s_Treads=$((${Treads}/4*3))
-fi 
+# Treads=`nproc --all`
+# # specifying the number of threads snakemake can use
+# if ${Treads} -le 4; then 
+#     s_Treads=$((${Treads}/2))
+# else
+#     s_Treads=$((${Treads}/4*3))
+# fi 
 
-echo "${Treads} treads found, reserving ${s_Treads} treads for snakemake"
+# echo "${Treads} treads found, reserving ${s_Treads} treads for snakemake"
 
 # Starting snakemake
 echo "\nStarting snakemake"
-snakemake -j ${Treads}
-    # -j = how many cores can be used at most in parallel 
-echo "Done\n"
+pyhton --version
+time pyhton3 ./get_environment.py
+echo "done"
+# echo "Done\n"
