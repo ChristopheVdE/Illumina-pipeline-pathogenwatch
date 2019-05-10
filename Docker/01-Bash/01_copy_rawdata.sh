@@ -7,12 +7,11 @@
 #USAGE: ./01_copy_rawdata.sh ${input} ${output}
 ###################################################################################
 
-# copy the 00_Rawdata into the current analysis folder
-echo -e "\nCopying files, please wait"
-
 #Fix possible EOL errors in sampleList.txt
 dos2unix /home/Pipeline/data/sampleList.txt
 
+# copy the 00_Rawdata into the current analysis folder
+echo -e "\nCopying files, please wait"
 for id in `cat /home/Pipeline/data/sampleList.txt`; do
     mkdir -p /home/Pipeline/data/${id}/00_Rawdata
     cp -vr /home/rawdata/${id}* /home/Pipeline/data/${id}/00_Rawdata/ \

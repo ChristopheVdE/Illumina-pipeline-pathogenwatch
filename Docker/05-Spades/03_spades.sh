@@ -39,7 +39,7 @@ for id in `cat /home/data/sampleList.txt`; do
 	#RUN SPADES AND RENAME
 	for i in `cat /home/foldercontent6.txt`; do
 		#START SPADES
-		echo -e "STARTING ${i} \n";	
+		echo -e "\nSTARTING ${i} \n";	
 		/SPAdes-3.13.1-Linux/bin/spades.py --pe1-1 /home/data/${id}/02_Trimmomatic/${id}_L001_R1_001_P.fastq.gz \
 		--pe1-2 /home/data/${id}/02_Trimmomatic/${id}_L001_R2_001_P.fastq.gz \
 		--tmp-dir /home/SPades/temp/ \

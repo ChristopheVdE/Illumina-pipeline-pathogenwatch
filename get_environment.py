@@ -46,8 +46,8 @@ else:
     print("\norigin={}".format(origin))
 #-----------------------------------------------------------------------------------------------------------
 
-# write locations and date to file--------------------------------------------------------------------------
-loc = open(location+"/enviroment.txt", mode="w")
+# write locations to file--------------------------------------------------------------------------
+loc = open(location+"/environment.txt", mode="w")
 loc.write("origin="+origin+"\n")
 loc.write("origin_m="+origin_m+"\n")
 loc.write("location="+location+"\n")
@@ -71,3 +71,12 @@ for i in ids:
 file.close()
 #-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================
+
+# EXECUTE SNAKEMAKE DOCKER---------------------------------------------------------------------------------------------
+cmd = 'docker run -it --rm --name snakemake -v /var/run/docker.sock:/var/run/docker.sock \
+    -v '+origin_m+':/home/rawdata/ \
+    -v '+location_m+':/home/Pipeline/ \
+    christophevde/snakemake:stable \
+    /bin/bash -c "cd /home/Snakemake/ && snakemake ; /home/Scripts/copy_log.sh"'
+os.system(cmd)
+#-----------------------------------------------------------------------------------------------------------

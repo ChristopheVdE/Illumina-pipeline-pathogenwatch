@@ -12,20 +12,14 @@ start = time.time()
 #-----------------------------------------------------------------------------------------------------------
 
 # GET LOCATIONS---------------------------------------------------------------------------------------------
-env = open("/home/Pipeline/enviroment.txt","r")
+env = open("/home/Pipeline/environment.txt","r")
 for line in env.readlines():
     if "location_m=" in line:
         location_m = line.replace("location_m=",'').replace('\n','')
         print(location_m)
-    elif "location=" in line:
-        location = line.replace("location=",'').replace('\n','')
-        print(location)
     elif "origin_m=" in line:
         origin_m = line.replace("origin_m=",'').replace('\n','')
         print(origin_m)
-    elif "origin=" in line:
-        origin = line.replace("origin=",'').replace('\n','')
-        print(origin)
 env.close()
 #-----------------------------------------------------------------------------------------------------------
 
@@ -63,7 +57,7 @@ rule copy_rawdata:
     message:
         "Please wait while the rawdata is being copied to the current-analysis folder"
     shell:
-        "docker run -it --rm --name copy_rawdata -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:test /home/Scripts/01_copy_rawdata.sh"
+        "docker run -it --rm --name copy_rawdata -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ christophevde/ubuntu_bash:stable /home/Scripts/01_copy_rawdata.sh"
     
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
@@ -76,9 +70,9 @@ rule fastqc_raw:
         expand("/home/Pipeline/data/{id}/01_QC-Rawdata/QC_FastQC/{id}_L001_R1_001_fastqc.html",id=ids),
         expand("/home/Pipeline/data/{id}/01_QC-Rawdata/QC_FastQC/{id}_L001_R2_001_fastqc.html",id=ids)
     message:
-        "Analyzing raw-data with FastQC using Docker-container fastqc:test"
+        "Analyzing raw-data with FastQC using Docker-container fastqc:stable"
     shell:
-        "docker run -it --rm --name fastqc_raw -v {location_m}/data:/home/data/ christophevde/fastqc:test /home/Scripts/QC01_fastqcRawData.sh"
+        "docker run -it --rm --name fastqc_raw -v {location_m}/data:/home/data/ christophevde/fastqc:stable /home/Scripts/QC01_fastqcRawData.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step3: running multiqc on the raw-data in the current-analysis folder
@@ -90,9 +84,9 @@ rule multiqc_raw:
     output:
         expand("/home/Pipeline/data/{id}/01_QC-Rawdata/QC_MultiQC/multiqc_report.html",id=ids)             #Results MultiQC for each sample separately
     message:
-        "Analyzing raw-data with MultiQC using Docker-container multiqc:test"
+        "Analyzing raw-data with MultiQC using Docker-container multiqc:stable"
     shell:
-        "docker run -it --rm --name multiqc_raw -v {location_m}/data:/home/data/ christophevde/multiqc:test /home/Scripts/QC01_multiqc_raw.sh"
+        "docker run -it --rm --name multiqc_raw -v {location_m}/data:/home/data/ christophevde/multiqc:stable /home/Scripts/QC01_multiqc_raw.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step4: Trimming
@@ -106,9 +100,9 @@ rule Trimming:
         expand("/home/Pipeline/data/{id}/02_Trimmomatic/{id}_L001_R1_001_P.fastq.gz",id=ids),
         expand("/home/Pipeline/data/{id}/02_Trimmomatic/{id}_L001_R2_001_U.fastq.gz",id=ids)
     message:
-        "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:test"
+        "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:stable"
     shell:
-        "docker run -it --rm --name trimmomatic -v {location_m}/data:/home/data/ christophevde/trimmomatic:test /home/Scripts/02_runTrimmomatic.sh"
+        "docker run -it --rm --name trimmomatic -v {location_m}/data:/home/data/ christophevde/trimmomatic:stable /home/Scripts/02_runTrimmomatic.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step5: FastQC trimmed data (paired reads only)
@@ -120,9 +114,9 @@ rule fastqc_trimmed:
     output:
         expand("/home/Pipeline/data/{id}/03_QC-Trimmomatic_Paired/QC_FastQC/{id}_L001_R1_001_P_fastqc.html",id=ids)
     message:
-        "Analyzing trimmed-data with FastQC using Docker-container fastqc:test"
+        "Analyzing trimmed-data with FastQC using Docker-container fastqc:stable"
     shell:
-        "docker run -it --rm --name fastqc_trim -v {location_m}/data:/home/data/ christophevde/fastqc:test /home/Scripts/QC02_fastqcTrimmomatic.sh"
+        "docker run -it --rm --name fastqc_trim -v {location_m}/data:/home/data/ christophevde/fastqc:stable /home/Scripts/QC02_fastqcTrimmomatic.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step6: MultiQC trimmed data (paired reads only) 
@@ -133,9 +127,9 @@ rule multiqc_trimmed:
     output:
         expand("/home/Pipeline/data/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html",id=ids)
     message:
-        "Analyzing trimmed-data with MultiQC using Docker-container multiqc:test"
+        "Analyzing trimmed-data with MultiQC using Docker-container multiqc:stable"
     shell:
-        "docker run -it --rm --name multiqc_trim -v {location_m}/data:/home/data/ christophevde/multiqc:test /home/Scripts/QC02_multiqcTrimmomatic.sh"
+        "docker run -it --rm --name multiqc_trim -v {location_m}/data:/home/data/ christophevde/multiqc:stable /home/Scripts/QC02_multiqcTrimmomatic.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step7: SPAdes
@@ -149,9 +143,9 @@ rule Spades_InputPathogenwatch:
         expand("/home/Pipeline/data/{id}/04_SPAdes/dataset.info",id=ids),
         directory(expand("/home/Pipeline/data/{id}/05_inputPathogenWatch",id=ids))
     message:
-        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:test"
+        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:stable"
     shell:
-        "docker run -it --rm --name spades -v {location_m}/data:/home/data/ christophevde/spades:test /home/Scripts/03_spades.sh"
+        "docker run -it --rm --name spades -v {location_m}/data:/home/data/ christophevde/spades:stable /home/Scripts/03_spades.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================

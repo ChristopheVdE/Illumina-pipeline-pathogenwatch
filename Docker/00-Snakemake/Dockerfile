@@ -20,6 +20,7 @@ RUN apk --update  --repository http://dl-4.alpinelinux.org/alpine/edge/community
     libxext \
     libxrender \
     tini \ 
+    dos2unix \
     && curl -L "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/2.25-r0/glibc-2.25-r0.apk" -o /tmp/glibc.apk \
     && curl -L "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/2.25-r0/glibc-bin-2.25-r0.apk" -o /tmp/glibc-bin.apk \
     && curl -L "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/2.25-r0/glibc-i18n-2.25-r0.apk" -o /tmp/glibc-i18n.apk \
@@ -48,7 +49,11 @@ RUN python --version
 RUN snakemake --version
 
 # ADD snakemake file
-ADD ./Snakefile ./Snakefile
+ADD ./Snakefile /home/Snakemake/Snakefile
 
-# auto run Snakefile
-CMD [""]
+# ADD script to copy the snakemake log to a shared folder
+ADD ./copy_log.sh /home/Scripts/copy_log.sh
+RUN dos2unix /home/Scripts/copy_log.sh
+RUN chmod 755 /home/Scripts/copy_log.sh
+
+
