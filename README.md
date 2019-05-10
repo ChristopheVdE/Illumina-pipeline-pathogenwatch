@@ -70,4 +70,7 @@ the resulting file structure should look like this:
         
 ## Usefull commands:
   - to build containers out of the image-files (dockerfiles): $docker build --tag="imagename":"version" .
-  - to run the created image: $ docker run -it --rm "imagename":"version" "command"
+  - to run the created image: $docker run -it --rm "imagename":"version" "command"
+  - to list all Docker images found on the host: $docker image ls
+  - to list all container currently running on the host: $docker container ls
+  - to remove a Docker image from the host: $docker image rm "imagename":"version"
