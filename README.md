@@ -4,7 +4,7 @@
 Containerised analysis pipeline for Salmonella thypi using Docker containers and the Snakemake tool.
 
 ## Requirements
-To run the pipeline the following programs are required. The required installation files can be found in the installer-folder provided in this repository.
+To run the pipeline the following programs are required.
 
 ### Linux
  - docker: 
