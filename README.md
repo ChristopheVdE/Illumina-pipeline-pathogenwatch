@@ -14,23 +14,23 @@ To run the pipeline the following programs are required. The required installati
       - Fedora: https://docs.docker.com/install/linux/docker-ce/fedora/
  - python3:
       1) open terminal
-      2) execute: *'syntax to download packages'* pyhton3    
- - MiniConda: https://docs.conda.io/en/latest/miniconda.html
- - snakemake: 
-      1) open a terminal
-      2) execute: "conda install -c bioconda -c conda-forge snakemake"
+      2) execute: *'syntax to download packages'* pyhton3
 
 ### Windows
  - docker: https://docs.docker.com/toolbox/overview/
  - python3: https://www.python.org/downloads/
- - MiniConda: https://docs.conda.io/en/latest/miniconda.html
- - snakemake: 
-      1) open anaconda terminal
-      2) execute: "conda install -c bioconda -c conda-forge snakemake"
  
 ## Pipeline
+### Starting the pipeline
+In Order to start the pipeline you only really need 1 file ("get_environment.py") provided in this repository which you can execute through the command line. For those not familliar with a command line interface, there are 2 'auto-run scripts' provided, one for Windows users and one for Linux users:
+
+- For Linux users: LINUX_run-pipeline.sh
+- For Windows users: WINDOWS_run-pipeline.cmd
+
+The other files found in this repository are the codes used to create the Docker images for the containers and the scripts that are loaded into these containers. You don't need these since the containers will automatically be downloaded and 'installed' when the pipeline is ran for the first time (download from Docker-HUB).
+
 ### Preformed steps
-The Pipline is controlled by Snakemake using the Snakefile found in this repository. Snakemake will read the rules specified in this file and chain them togheter in the correct order for the analysis (don't change this file unless you know what you are doing, one little change can break the entire pipeline). 
+The Pipline is controlled by Snakemake, which itself is being ran in a container. Snakemake will read the rules/steps specified in the Snakefile and chain them togheter in the correct order for the analysis. 
 
 Snakemake will preform the following steps durig the analysis. Each step is specified as a rule in the Snakefile and will be executed in a docker container created for that specific task:
 
@@ -47,30 +47,27 @@ Snakemake will preform the following steps durig the analysis. Each step is spec
 ### Results
 the resulting file structure should look like this:
 
-    Parent folder
-      |-- Snakefile
-      |-- .snakemake
-      |     |-- log
-      |          |-- log of current analysis
-      |-- data
-            |-- 00_Rawdata
-            |        |-- sample1.fastq.gz
-            |        |-- sample2.fastq.gz
-            |-- 01_QC-Rawdata
-            |        |-- QC_fastqc
-            |        |-- QC_MultiQC
-            |-- 02_Trimmomatic
-            |        |--sample1_U.gz
-            |        |--sample1_P.gz
-            |-- 03_QC-Trimmomatic_Paired
-            |        |-- QC_fastqc
-            |        |-- QC_MultiQC     
-            |-- 04_SPAdes
-                     |-- sapmle1
-                     |      |--
-                     |-- sample2
-                            |--
-
-usefull commands:
-  - to build containers out of the image-files (dockerfiles): $docker build --tag "imagename":"version" .
-  - to run the created image: $ docker run "imagename":"version"
+      data
+       |--Sample1
+       |     |-- 00_Rawdata
+       |     |-- 01_QC-Rawdata
+       |     |        |-- QC_fastqc
+       |     |        |-- QC_MultiQC (multiqc of only this sample)
+       |     |-- 02_Trimmomatic
+       |     |        |--sample1_U.gz
+       |     |        |--sample1_P.gz
+       |     |-- 03_QC-Trimmomatic_Paired
+       |     |        |-- QC_fastqc
+       |     |        |-- QC_MultiQC (multiqc of only this sample)
+       |     |-- 04_SPAdes
+       |     |-- 05_inputPathogenWatch
+       |--Sample2
+       |--QC_MultiQC (MultiQC of all samples in the run combined)
+       |     |--RUN_date
+       |          |--MultiQC_rawdata
+       |          |--MultiQC_trimmed
+       |--Snakemake_logs
+        
+## Usefull commands:
+  - to build containers out of the image-files (dockerfiles): $docker build --tag="imagename":"version" .
+  - to run the created image: $ docker run -it --rm "imagename":"version" "command"
