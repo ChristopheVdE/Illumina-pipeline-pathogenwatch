@@ -25,7 +25,7 @@ dos2unix /home/data/sampleList.txt
 for id in `cat /home/data/sampleList.txt`; do
 
 	#CREATE OUTPUTFOLDERS
-	mkdir -p /home/data/${id}/04_Spades
+	mkdir -p /home/data/${id}/04_SPAdes
 	mkdir -p /home/data/${id}/05_inputPathogenWatch
 
 	#CREATE temp folder-content-list
@@ -42,10 +42,10 @@ for id in `cat /home/data/sampleList.txt`; do
 		echo -e "\nSTARTING ${i} \n";	
 		/SPAdes-3.13.1-Linux/bin/spades.py --pe1-1 /home/data/${id}/02_Trimmomatic/${id}_L001_R1_001_P.fastq.gz \
 		--pe1-2 /home/data/${id}/02_Trimmomatic/${id}_L001_R2_001_P.fastq.gz \
-		--tmp-dir /home/SPades/temp/ \
-		-o /home/data/${id}/04_Spades;
+		--tmp-dir /home/SPAdes/temp/ \
+		-o /home/data/${id}/04_SPAdes;
 		#RENAME AND MOVE RESULTS
-		cd /home/data/${id}/04_Spades
+		cd /home/data/${id}/04_SPAdes
 		cp contigs.fasta /home/data/${id}/05_inputPathogenWatch/${id}.fasta
 	done
 done

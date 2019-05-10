@@ -20,6 +20,7 @@
 
 # Starting snakemake
 echo "\nStarting snakemake"
+pyhton --version
 time pyhton3 ./get_environment.py
 echo "done"
 # echo "Done\n"
