@@ -52,7 +52,11 @@ rule copy_rawdata:
     message:
         "Please wait while the rawdata is being copied to the current-analysis folder"
     shell:
-        "docker run -it --rm -v {origin_m}:/home/rawdata/ -v {location_m}:/home/Pipeline/ --name copy_rawdata christophevde/ubuntu_bash:stable /home/Scripts/01_copy_rawdata.sh"
+        "docker run -it --rm \
+        -v {origin_m}:/home/rawdata/ \
+        -v {location_m}:/home/Pipeline/ \
+        --name copy_rawdata \
+        christophevde/ubuntu_bash:stable /home/Scripts/01_copy_rawdata.sh"
     
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
@@ -67,7 +71,11 @@ rule fastqc_raw:
     message:
         "Analyzing raw-data with FastQC using Docker-container fastqc:stable"
     shell:
-        "docker run -it --rm -v {location_m}/data:/home/data/ --name fastqc_raw christophevde/fastqc:stable /home/Scripts/QC01_fastqcRawData.sh"
+        "docker run -it --rm \
+        -v {location_m}/data:/home/data/ \
+        --name fastqc_raw \
+        christophevde/fastqc:stable \
+        /home/Scripts/QC01_fastqcRawData.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step3: running multiqc on the raw-data in the current-analysis folder
@@ -81,7 +89,11 @@ rule multiqc_raw:
     message:
         "Analyzing raw-data with MultiQC using Docker-container multiqc:stable"
     shell:
-        "docker run -it --rm -v {location_m}/data:/home/data/ --name multiqc_raw christophevde/multiqc:stable /home/Scripts/QC01_multiqc_raw.sh"
+        "docker run -it --rm \
+        -v {location_m}/data:/home/data/ \
+        --name multiqc_raw \
+        christophevde/multiqc:stable \
+        /home/Scripts/QC01_multiqc_raw.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step4: Trimming
@@ -97,7 +109,11 @@ rule Trimming:
     message:
         "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:stable"
     shell:
-        "docker run -it --rm -v {location_m}/data:/home/data/ --name trimmomatic christophevde/trimmomatic:stable /home/Scripts/02_runTrimmomatic.sh"
+        "docker run -it --rm \
+        -v {location_m}/data:/home/data/ \
+        --name trimmomatic \
+        christophevde/trimmomatic:stable \
+        /home/Scripts/02_runTrimmomatic.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step5: FastQC trimmed data (paired reads only)
@@ -111,7 +127,10 @@ rule fastqc_trimmed:
     message:
         "Analyzing trimmed-data with FastQC using Docker-container fastqc:stable"
     shell:
-        "docker run -it --rm  -v {location_m}/data:/home/data/ --name fastqc_trim christophevde/fastqc:stable /home/Scripts/QC02_fastqcTrimmomatic.sh"
+        "docker run -it --rm  \
+        -v {location_m}/data:/home/data/ \
+        --name fastqc_trim christophevde/fastqc:stable \
+        /home/Scripts/QC02_fastqcTrimmomatic.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step6: MultiQC trimmed data (paired reads only) 
@@ -124,7 +143,11 @@ rule multiqc_trimmed:
     message:
         "Analyzing trimmed-data with MultiQC using Docker-container multiqc:stable"
     shell:
-        "docker run -it --rm -v {location_m}/data:/home/data/ --name multiqc_trim christophevde/multiqc:stable /home/Scripts/QC02_multiqcTrimmomatic.sh"
+        "docker run -it --rm \
+        -v {location_m}/data:/home/data/ \
+        --name multiqc_trim \
+        christophevde/multiqc:stable \
+        /home/Scripts/QC02_multiqcTrimmomatic.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step7: SPAdes
@@ -140,7 +163,11 @@ rule Spades_InputPathogenwatch:
     message:
         "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:stable"
     shell:
-        "docker run -it --rm -v {location_m}/data:/home/data/ --name spades christophevde/spades:stable /home/Scripts/03_spades.sh"
+        "docker run -it --rm \
+        -v {location_m}/data:/home/data/ \
+        --name spades \
+        christophevde/spades:stable \
+        /home/Scripts/03_spades.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================
