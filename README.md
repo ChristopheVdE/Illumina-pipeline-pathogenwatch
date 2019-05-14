@@ -1,4 +1,5 @@
 # Docker
+*this readme can also be found as a word document with some more in-depth instructions when required in the info-folder* 
 
 ## Introduction
 Containerised analysis pipeline for Salmonella thypi using Docker containers and the Snakemake tool.
@@ -26,6 +27,9 @@ In Order to start the pipeline you only really need 1 file ("get_environment.py"
 
 - For Linux users: LINUX_run-pipeline.sh
 - For Windows users: WINDOWS_run-pipeline.cmd
+
+These scripts can be ativated by double clicking on them, after which each of them should ask for the location of the rawdata. These locations can easily be found by opening an explorer, navigating to the files and copying the path from there (most of the time the path will be displayed at the top of the screen). Please make sure that there are no spaces in the path to these locations.
+After the path is provided the script will automatically execute all the required steps without any user input. When the analysis is complete you will get message displayed in the command line indicating this. together with this message, the time it took to complete the analysis will be displayed.
 
 The other files found in this repository are the codes used to create the Docker images for the containers and the scripts that are loaded into these containers. You don't need these since the containers will automatically be downloaded and 'installed' when the pipeline is ran for the first time (download from Docker-HUB).
 
