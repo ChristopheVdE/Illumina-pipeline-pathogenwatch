@@ -49,7 +49,7 @@ Snakemake will preform the following steps durig the analysis. Each step is spec
     6) Use results in Pathogenwatch.com (manual step)
   
 ### Results
-the resulting file structure should look like this:
+the resulting file structure should look like this, with all rawdata and analysis data grouped per sample. To make revieuwing the QC a bit easier, the MultiQC results for the full run (all samples) are stored sepparatly under QC-MultiQC/date. The full log of the snakemake program can be found under Snakemake_logs.
 
       data
        |--Sample1
