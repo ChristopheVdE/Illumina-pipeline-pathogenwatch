@@ -8,6 +8,6 @@
 *.log
 *.json
 *.info
-/data
-
+environment.txt
 spaces.py
+/data

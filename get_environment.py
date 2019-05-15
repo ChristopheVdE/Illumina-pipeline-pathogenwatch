@@ -60,6 +60,11 @@ else:
         print("\norigin={}".format(origin))
 #-----------------------------------------------------------------------------------------------------------
 
+# create location/data--------------------------------------------------------------------------------------
+    if not os.path.exists(location+"/data"):
+        os.mkdir(location+"/data/")
+#-----------------------------------------------------------------------------------------------------------
+
 # write locations to file-----------------------------------------------------------------------------------
     loc = open(location+"/environment.txt", mode="w")
     loc.write("origin="+origin+"\n")
@@ -93,6 +98,7 @@ else:
         --name snakemake \
         christophevde/snakemake:stable \
         /bin/bash -c "cd /home/Snakemake/ && snakemake ; /home/Scripts/copy_log.sh"'
+    #print(cmd)
     os.system(cmd)
 #-----------------------------------------------------------------------------------------------------------
 
