@@ -28,6 +28,7 @@ system=platform.platform()
 import string
 if "Windows" in system:
     print("\nWindows based system detected ({}), fixing paths".format(system))
+    sys="Windows"
     for i in list(string.ascii_lowercase+string.ascii_uppercase):
         if origin.startswith(i+":/"):
             origin_m = origin.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
@@ -45,18 +46,11 @@ if "Windows" in system:
 else:
     origin_m = origin
     location_m = location
+    sys="UNIX"
     print("\nUNIX based system detected ({}), paths shouldn't require fixing".format(system))
     print("\norigin={}".format(origin))
 #-----------------------------------------------------------------------------------------------------------
 
-# write locations to file-----------------------------------------------------------------------------------
-loc = open(location+"/environment.txt", mode="w")
-loc.write("origin="+origin+"\n")
-loc.write("origin_m="+origin_m+"\n")
-loc.write("location="+location+"\n")
-loc.write("location_m="+location_m+"\n")
-loc.close()
-#-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================
 
 # CREATE SAMPLE LIST========================================================================================
@@ -75,7 +69,14 @@ file.close()
 #-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================
 
-# GET MAX THREADS available in docker=======================================================================
+# GET MAX THREADS===========================================================================================
+# MAX THREADS AVAIABLE IN DOCKER---------------------------------------------------------------------------
+
+# for windows, this is everything it can take since the threads avaible to docker are already 
+# limited by the virtualisation program
+# for Linux/Mac, the number of threads available to docker would be the same as those available on the HOST
+# so an extra limitation is needed in order to not slow down the PC to much
+
 cmd = 'docker run -it --rm \
     --name ubuntu_bash \
     -v /var/run/docker.sock:/var/run/docker.sock \
@@ -83,6 +84,34 @@ cmd = 'docker run -it --rm \
     christophevde/ubuntu_bash:test \
     /home/Scripts/00_threads.sh'
 os.system(cmd)
+#-----------------------------------------------------------------------------------------------------------
+
+# SPECIFY MAX THREADS FOR LINUX/ MAC------------------------------------------------------------------------
+env = open("/home/Pipeline/environment.txt","r")
+for line in env.readlines():
+    if "threads=" in line:
+        threads = line.replace("threads=",'').replace('\n','')
+env.close()
+
+if sys=="UNIX":
+    if threads < 5:
+        threads = threads/2
+    else:
+        threads = threads//4*3
+    print("{} threads reserved for Docker".format(threads))
+else:
+    print("{} threads reserved for Docker".format(threads))
+#-----------------------------------------------------------------------------------------------------------
+#===========================================================================================================
+
+# WRITE ALL HOST INFO TO FILE===============================================================================
+loc = open(location+"/environment.txt", mode="w")
+loc.write("origin="+origin+"\n")
+loc.write("origin_m="+origin_m+"\n")
+loc.write("location="+location+"\n")
+loc.write("location_m="+location_m+"\n")
+loc.write("threads="+threads+"\n")
+loc.close()
 #===========================================================================================================
 
 # EXECUTE SNAKEMAKE DOCKER==================================================================================
