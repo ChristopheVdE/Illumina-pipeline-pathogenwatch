@@ -24,6 +24,7 @@ import platform
 system=platform.platform()
 #-----------------------------------------------------------------------------------------------------------
 
+# WINDOWS SPECIFICtions=====================================================================================
 # fix the path if system is Windows-------------------------------------------------------------------------
 import string
 if "Windows" in system:
@@ -39,8 +40,11 @@ if "Windows" in system:
             location_m = location.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
     print("\tRaw-data location ({}) changed to: {}".format(origin,origin_m))
     print("\tCurrent location ({}) changed to: {}\n".format(location,location_m))
+# ----------------------------------------------------------------------------------------------------------
 
-# check if HyperV is enabled (indication of docker version)-------------------------------------------------
+# Docker version detection through HyperV-status------------------------------------------------------------
+# "Docker toolbox" (legacy docker version) works on all windows version, but uses oracle virtual box which is incompatible with HyperV-virtualisation
+# "Docker for windows" (latest docker version) only works on Win10 Pro and enterprise but uses HyperV
     import subprocess
     HV = subprocess.Popen('powershell.exe get-service | findstr vmcompute', shell=True, stdout=subprocess.PIPE)
     for line in HV.stdout:
@@ -51,7 +55,7 @@ if "Windows" in system:
         else:
             print("HyperV isn't enabled. Assuming Docker version = Docker-toolbox")
             HyperV="False"
-            
+
 # keeping paths as they are if system isn't Windows---------------------------------------------------------
 else:
     origin_m = origin
@@ -87,11 +91,11 @@ file.close()
 #-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================
 
-# EXECUTE SNAKEMAKE DOCKER---------------------------------------------------------------------------------------------
+# EXECUTE SNAKEMAKE DOCKER==================================================================================
 cmd = 'docker run -it --rm --name snakemake -v /var/run/docker.sock:/var/run/docker.sock \
     -v '+origin_m+':/home/rawdata/ \
     -v '+location_m+':/home/Pipeline/ \
     christophevde/snakemake:stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake ; /home/Scripts/copy_log.sh"'
 os.system(cmd)
-#-----------------------------------------------------------------------------------------------------------
+#===========================================================================================================
