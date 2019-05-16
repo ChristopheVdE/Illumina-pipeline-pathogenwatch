@@ -15,7 +15,7 @@ In order to run the pipeline, the following steps need to be preformed.
       - All versions of Windows: https://docs.docker.com/toolbox/overview/
       - Windows 10 Pro or Enterprise:  https://hub.docker.com/editions/community/docker-ce-desktop-windows
  - MacOS: https://hub.docker.com/editions/community/docker-ce-desktop-mac
-### Install Pyhton3
+### Install Python3
  - Linux:
       1) open terminal
       2) execute: *'syntax to download packages'* pyhton3
@@ -38,7 +38,7 @@ In Order to start the pipeline you only really need 1 file ("get_environment.py"
 - For Windows users: WINDOWS_run-pipeline.cmd
 
 These scripts can be ativated by double clicking on them, after which each of them should ask for the location of the rawdata. These locations can easily be found by opening an explorer, navigating to the files and copying the path from there (most of the time the path will be displayed at the top of the screen). Please make sure that there are no spaces in the path to these locations.
-After the path is provided the script will automatically execute all the required steps without any user input. When the analysis is complete you will get message displayed in the command line indicating this. together with this message, the time it took to complete the analysis will be displayed.
+After the path is provided the script will automatically execute all the required steps without any user input. When the analysis is complete you will get message displayed in the command line indicating this. Together with this message, the time it took to complete the analysis will be displayed.
 
 **WINDOWS**: before activating the scripts you will need to start docker. If you use docker-toolbox doudble click on the 'Docker quickstart terminal' shortcut to start up Docker. If you use 'Docker for windows' or are using Linux, then docker will (probably) automatically start up during system startup and you can just run the scripts.
 
@@ -60,7 +60,7 @@ Snakemake will preform the following steps durig the analysis. Each step is spec
     6) Use results in Pathogenwatch.com (manual step)
   
 ### Results
-the resulting file structure should look like this, with all rawdata and analysis data grouped per sample. To make revieuwing the QC a bit easier, the MultiQC results for the full run (all samples) are stored sepparatly under QC-MultiQC/date. The full log of the snakemake program can be found under Snakemake_logs.
+the resulting file structure should look like this, with all rawdata and analysis data grouped per sample. To make reviewing the QC a bit easier, the MultiQC results for the full run (all samples) are stored sepparatly under QC-MultiQC/date. The full log of the snakemake program can be found under Snakemake_logs.
 
       data
        |--Sample1
