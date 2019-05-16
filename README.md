@@ -1,31 +1,40 @@
 # Docker
-*this readme can also be found as a word document with some more in-depth instructions when required in the info-folder* 
-
 ## Introduction
 Containerised analysis pipeline for Salmonella thypi using Docker containers and the Snakemake tool.
-
-## Requirements
-To run the pipeline the following programs are required.
-
-### Linux
- - docker: 
-      - CentOS: https://docs.docker.com/install/linux/docker-ce/centos/
-      - Ubuntu: https://docs.docker.com/install/linux/docker-ce/ubuntu/
-      - Debian: https://docs.docker.com/install/linux/docker-ce/debian/
-      - Fedora: https://docs.docker.com/install/linux/docker-ce/fedora/
- - python3:
+## Installation
+In order to run the pipeline, the following steps need to be preformed.
+### Install Docker
+ - Linux: 
+      1) Downloading + installation
+          - CentOS: https://docs.docker.com/install/linux/docker-ce/centos/
+          - Ubuntu: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+          - Debian: https://docs.docker.com/install/linux/docker-ce/debian/
+          - Fedora: https://docs.docker.com/install/linux/docker-ce/fedora/
+      2) preform the post installation steps: https://docs.docker.com/install/linux/linux-postinstall/
+ - Windows:
+      - All versions of Windows: https://docs.docker.com/toolbox/overview/
+      - Windows 10 Pro or Enterprise:  https://hub.docker.com/editions/community/docker-ce-desktop-windows
+ - MacOS: https://hub.docker.com/editions/community/docker-ce-desktop-mac
+### Install Pyhton3
+ - Linux:
       1) open terminal
       2) execute: *'syntax to download packages'* pyhton3
-
-### Windows
- - docker: https://docs.docker.com/toolbox/overview/
- - python3: https://www.python.org/downloads/
+ - Windows:
+      1) download the latest version of python3 (at the moment of writhing this is pyhton 3.7.3): https://www.python.org/downloads/
+      2) preform the installation, most of the default options should be fine but the option to **add python to the PATH** needs to be enabled
+ - MacOS: https://www.python.org/downloads/release/python-373/
+### Downloading the repository from github
+1) click on releases
+2) select the latest release
+3) download either the ".zip" (Windows) or the ".tar.gz" (Linux/ MacOS) version
+5) place the archive in the directory of choice
+4) extract the files from the archive to the directory
  
 ## Pipeline
 ### Starting the pipeline
 In Order to start the pipeline you only really need 1 file ("get_environment.py") provided in this repository which you can execute through the command line. For those not familliar with a command line interface, there are 2 'auto-run scripts' provided, one for Windows users and one for Linux users:
 
-- For Linux users: LINUX_run-pipeline.sh
+- For Linux/ MacOS users: LINUX_run-pipeline.sh
 - For Windows users: WINDOWS_run-pipeline.cmd
 
 These scripts can be ativated by double clicking on them, after which each of them should ask for the location of the rawdata. These locations can easily be found by opening an explorer, navigating to the files and copying the path from there (most of the time the path will be displayed at the top of the screen). Please make sure that there are no spaces in the path to these locations.
