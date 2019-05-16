@@ -51,7 +51,6 @@ else:
 
 # write locations to file-----------------------------------------------------------------------------------
 loc = open(location+"/environment.txt", mode="w")
-loc.write("HyperV="+HyperV+"\n")
 loc.write("origin="+origin+"\n")
 loc.write("origin_m="+origin_m+"\n")
 loc.write("location="+location+"\n")
@@ -76,8 +75,19 @@ file.close()
 #-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================
 
+# GET MAX THREADS available in docker=======================================================================
+cmd = 'docker run -it --rm \
+    --name ubuntu_bash \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v '+location_m+':/home/Pipeline/ \
+    christophevde/ubuntu_bash:test \
+    /home/Scripts/00_threads.sh'
+os.system(cmd)
+#===========================================================================================================
+
 # EXECUTE SNAKEMAKE DOCKER==================================================================================
-cmd = 'docker run -it --rm --name snakemake \
+cmd = 'docker run -it --rm \
+    --name snakemake \
     --cpus=1 \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v '+origin_m+':/home/rawdata/ \
