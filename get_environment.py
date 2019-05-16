@@ -24,7 +24,6 @@ import platform
 system=platform.platform()
 #-----------------------------------------------------------------------------------------------------------
 
-# WINDOWS SPECIFICtions=====================================================================================
 # fix the path if system is Windows-------------------------------------------------------------------------
 import string
 if "Windows" in system:
@@ -41,20 +40,6 @@ if "Windows" in system:
     print("\tRaw-data location ({}) changed to: {}".format(origin,origin_m))
     print("\tCurrent location ({}) changed to: {}\n".format(location,location_m))
 # ----------------------------------------------------------------------------------------------------------
-
-# Docker version detection through HyperV-status------------------------------------------------------------
-# "Docker toolbox" (legacy docker version) works on all windows version, but uses oracle virtual box which is incompatible with HyperV-virtualisation
-# "Docker for windows" (latest docker version) only works on Win10 Pro and enterprise but uses HyperV
-    import subprocess
-    HV = subprocess.Popen('powershell.exe get-service | findstr vmcompute', shell=True, stdout=subprocess.PIPE)
-    for line in HV.stdout:
-        #print(line.decode("utf-8"))
-        if "Running" in line.decode("utf-8"): 
-            print("HyperV is enabled. Assuming Docker version = Docker-for-Windows")
-            HyperV="True"
-        else:
-            print("HyperV isn't enabled. Assuming Docker version = Docker-toolbox")
-            HyperV="False"
 
 # keeping paths as they are if system isn't Windows---------------------------------------------------------
 else:
@@ -92,7 +77,9 @@ file.close()
 #===========================================================================================================
 
 # EXECUTE SNAKEMAKE DOCKER==================================================================================
-cmd = 'docker run -it --rm --name snakemake -v /var/run/docker.sock:/var/run/docker.sock \
+cmd = 'docker run -it --rm --name snakemake \
+    --cpus=1 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
     -v '+origin_m+':/home/rawdata/ \
     -v '+location_m+':/home/Pipeline/ \
     christophevde/snakemake:stable \
