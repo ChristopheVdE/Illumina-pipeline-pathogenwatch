@@ -39,17 +39,19 @@ if "Windows" in system:
             location_m = location.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
     print("\tRaw-data location ({}) changed to: {}".format(origin,origin_m))
     print("\tCurrent location ({}) changed to: {}\n".format(location,location_m))
+
 # check if HyperV is enabled (indication of docker version)-------------------------------------------------
-# docker toolbox uses Oracle VB which isn't compatible with HyperV
-# docker for windows uses HyperV virtualisation
-    HV = "powershell.exe [Get-WMIObject -Namespace root -Class __namespace -Filter 'Name="+'"virtualization"'+"']"
-    print(HV)
-    if not os.system(HV):
-        print("HyperV isn't enabled. Assuming Docker version = Docker-toolbox")
-        HyperV="False"
-    else:
-        print("HyperV enabled. Assuming Docker version = Docker-for-Windows")
-        HyperV="True"
+    import subprocess
+    HV = subprocess.Popen('powershell.exe get-service | findstr vmcompute', shell=True, stdout=subprocess.PIPE)
+    for line in HV.stdout:
+        #print(line.decode("utf-8"))
+        if "Running" in line.decode("utf-8"): 
+            print("HyperV is enabled. Assuming Docker version = Docker-for-Windows")
+            HyperV="True"
+        else:
+            print("HyperV isn't enabled. Assuming Docker version = Docker-toolbox")
+            HyperV="False"
+            
 # keeping paths as they are if system isn't Windows---------------------------------------------------------
 else:
     origin_m = origin
