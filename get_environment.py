@@ -16,18 +16,18 @@ otherwise there might be problems finding the location\n")
 
 # get current directory-------------------------------------------------------------------------------------
 location = os.getcwd()
-print("location={}".format(location))
+print("Current location={}".format(location))
 #-----------------------------------------------------------------------------------------------------------
 
 #find system-type-------------------------------------------------------------------------------------------
 import platform
-OS=platform.platform()
+system=platform.platform()
 #-----------------------------------------------------------------------------------------------------------
 
 # fix the path if system is Windows-------------------------------------------------------------------------
 import string
-if "Windows" in OS:
-    print("\nWindows based system detected ({}), fixing paths".format(OS))
+if "Windows" in system:
+    print("\nWindows based system detected ({}), fixing paths".format(system))
     for i in list(string.ascii_lowercase+string.ascii_uppercase):
         if origin.startswith(i+":/"):
             origin_m = origin.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
@@ -37,17 +37,30 @@ if "Windows" in OS:
             location_m = location.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
         elif location.startswith(i+":\\"):
             location_m = location.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-    print("\torigin ({}) changed to: {}".format(origin,origin_m))
-    print("\tlocation ({}) changed to: {}\n".format(location,location_m))
+    print("\tRaw-data location ({}) changed to: {}".format(origin,origin_m))
+    print("\tCurrent location ({}) changed to: {}\n".format(location,location_m))
+# check if HyperV is enabled (indication of docker version)-------------------------------------------------
+# docker toolbox uses Oracle VB which isn't compatible with HyperV
+# docker for windows uses HyperV virtualisation
+    HV = "powershell.exe [Get-WMIObject -Namespace root -Class __namespace -Filter 'Name="+'"virtualization"'+"']"
+    print(HV)
+    if not os.system(HV):
+        print("HyperV isn't enabled. Assuming Docker version = Docker-toolbox")
+        HyperV="False"
+    else:
+        print("HyperV enabled. Assuming Docker version = Docker-for-Windows")
+        HyperV="True"
+# keeping paths as they are if system isn't Windows---------------------------------------------------------
 else:
     origin_m = origin
     location_m = location
-    print("\nUNIX based system detected ({}), paths shouldn't require fixing".format(OS))
+    print("\nUNIX based system detected ({}), paths shouldn't require fixing".format(system))
     print("\norigin={}".format(origin))
 #-----------------------------------------------------------------------------------------------------------
 
-# write locations to file--------------------------------------------------------------------------
+# write locations to file-----------------------------------------------------------------------------------
 loc = open(location+"/environment.txt", mode="w")
+loc.write("HyperV="+HyperV+"\n")
 loc.write("origin="+origin+"\n")
 loc.write("origin_m="+origin_m+"\n")
 loc.write("location="+location+"\n")
