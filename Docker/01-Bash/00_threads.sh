@@ -8,4 +8,4 @@
 ###################################################################################
 
 # find max threads
-echo "threads=`nproc --all`" >> /home/Pipeline/environment.txt
+echo "threads=`nproc --all`" > /home/Pipeline/environment.txt

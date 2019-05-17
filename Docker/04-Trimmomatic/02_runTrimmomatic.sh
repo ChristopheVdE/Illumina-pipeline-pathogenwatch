@@ -14,12 +14,14 @@
 #-----------------------------------------------------------------------------------------------------------
 
 #TRIMMOMATIC PRE-START--------------------------------------------------------------------------------------
+threads=`nproc --all`
 ADAPTERFILE='/home/adapters/NexteraPE-PE.fa';
 #Fix possible EOL errors in sampleList.txt
 dos2unix /home/data/sampleList.txt
 #-----------------------------------------------------------------------------------------------------------
 
 #RUN TRIMMOMATIC--------------------------------------------------------------------------------------------
+echo "Starting Trimmomatic with ${threads} threads"
 for id in `cat /home/data/sampleList.txt`; do
 	#SPECIFY VARIABLES
 	inputFolder=/home/data/${id}/00_Rawdata
@@ -38,7 +40,7 @@ for id in `cat /home/data/sampleList.txt`; do
 	for i in `cat /home/foldercontent4.txt`; do
 		echo -e "\nSTARTING ${i} \n";
 		java -jar /home/Trimmomatic-0.39/trimmomatic-0.39.jar  \
-		PE -phred33 -trimlog /home/data/${i}/02_Trimmomatic/trimlog.txt \
+		PE -threads ${threads} -phred33 -trimlog /home/data/${i}/02_Trimmomatic/trimlog.txt \
 		/home/data/${i}/00_Rawdata/${i}_L001_R1_001.fastq.gz /home/data/${i}/00_Rawdata/${i}_L001_R2_001.fastq.gz \
 		/home/data/${i}/02_Trimmomatic/${i}_L001_R1_001_P.fastq.gz /home/data/${i}/02_Trimmomatic/${i}_L001_R1_001_U.fastq.gz \
 		/home/data/${i}/02_Trimmomatic/${i}_L001_R2_001_P.fastq.gz /home/data/${i}/02_Trimmomatic/${i}_L001_R2_001_U.fastq.gz \

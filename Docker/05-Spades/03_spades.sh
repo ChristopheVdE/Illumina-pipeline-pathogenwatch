@@ -9,7 +9,7 @@
 ###################################################################################
 
 #VALIDATE NR OF PARAMETERS---------------------------------------------------------
-	# Treads are provided by snakemake
+threads=`nproc --all`
 #----------------------------------------------------------------------------------
 
 #SPECIFY VARIABLES-----------------------------------------------------------------
@@ -22,6 +22,7 @@
 dos2unix /home/data/sampleList.txt
 
 #RUNNING SPADES--------------------------------------------------------------------
+echo "Starting SPAdes with ${threads} threads"
 for id in `cat /home/data/sampleList.txt`; do
 
 	#CREATE OUTPUTFOLDERS
@@ -43,7 +44,7 @@ for id in `cat /home/data/sampleList.txt`; do
 		/SPAdes-3.13.1-Linux/bin/spades.py --pe1-1 /home/data/${id}/02_Trimmomatic/${id}_L001_R1_001_P.fastq.gz \
 		--pe1-2 /home/data/${id}/02_Trimmomatic/${id}_L001_R2_001_P.fastq.gz \
 		--tmp-dir /home/SPAdes/temp/ \
-		-o /home/data/${id}/04_SPAdes;
+		-o /home/data/${id}/04_SPAdes -t ${threads};
 		#RENAME AND MOVE RESULTS
 		cd /home/data/${id}/04_SPAdes
 		cp contigs.fasta /home/data/${id}/05_inputPathogenWatch/${id}.fasta
