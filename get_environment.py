@@ -78,7 +78,7 @@ file.close()
 print("\nFetching system info (number of threads) please wait for the next input screen, this shouldn't take long\n")
 
 # MAX THREADS AVAILABLE IN DOCKER----------------------------------------------------------------------------
-if sys == "Windwows":
+if sys == "Windows":
     cmd = 'docker run -it --rm \
         --name ubuntu_bash \
         -v /var/run/docker.sock:/var/run/docker.sock \
@@ -157,11 +157,11 @@ loc.close()
 # EXECUTE SNAKEMAKE DOCKER==================================================================================
 cmd = 'docker run -it --rm \
     --name snakemake \
-    --cpus=1 \
+    --cpuset-cpus="0" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v '+rawdata_m+':/home/rawdata/ \
     -v '+location_m+':/home/Pipeline/ \
     christophevde/snakemake:test \
-    /bin/bash -c "cd /home/Snakemake/ && snakemake ; /home/Scripts/copy_log.sh"'
+    /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
 os.system(cmd)
 #===========================================================================================================
