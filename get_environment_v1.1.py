@@ -25,7 +25,7 @@ location = os.getcwd()
 
 # PATH CORRECTION===========================================================================================
 #check for spaces in the paths------------------------------------------------------------------------------
-if ' ' in origin:
+if ' ' in rawdata:
     print("\nERROR: spaces found in the path to the rawdata\n")
 elif ' ' in location:
     print("\nERROR: spaces found in the path to the current location\n")
@@ -34,7 +34,7 @@ else:
 
 #find system-type-------------------------------------------------------------------------------------------
     import platform
-    OS=platform.platform()
+    system=platform.platform()
 #-----------------------------------------------------------------------------------------------------------
 
 # fix the path if system is Windows-------------------------------------------------------------------------
@@ -74,8 +74,8 @@ else:
 
 # write locations to file-----------------------------------------------------------------------------------
     loc = open(location+"/environment.txt", mode="w")
-    loc.write("origin="+origin+"\n")
-    loc.write("origin_m="+origin_m+"\n")
+    loc.write("rawdata="+rawdata+"\n")
+    loc.write("rawdata_m="+rawdata_m+"\n")
     loc.write("location="+location+"\n")
     loc.write("location_m="+location_m+"\n")
     loc.close()
