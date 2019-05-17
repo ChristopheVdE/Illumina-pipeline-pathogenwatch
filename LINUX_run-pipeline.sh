@@ -20,6 +20,6 @@
 
 # Starting snakemake
 echo "\nStarting snakemake"
-pyhton3 ./get_environment_v1.1.py
+python3 ./get_environment_v1.1.py
 echo "done"
 # echo "Done\n"
