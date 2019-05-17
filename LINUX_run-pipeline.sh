@@ -7,20 +7,8 @@
 #USAGE: ./Snakemake_Linux.sh
 ###################################################################################
 
-# Counting treads
-# Treads=`nproc --all`
-# # specifying the number of threads snakemake can use
-# if ${Treads} -le 4; then 
-#     s_Treads=$((${Treads}/2))
-# else
-#     s_Treads=$((${Treads}/4*3))
-# fi 
-
-# echo "${Treads} treads found, reserving ${s_Treads} treads for snakemake"
-
 # Starting snakemake
 echo "\nStarting snakemake"
-pyhton --version
-time pyhton3 ./get_environment.py
+python3 ./get_environment.py
 echo "done"
 # echo "Done\n"

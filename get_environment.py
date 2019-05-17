@@ -78,12 +78,21 @@ file.close()
 print("\nFetching system info (number of threads) please wait for the next input screen, this shouldn't take long\n")
 
 # MAX THREADS AVAILABLE IN DOCKER----------------------------------------------------------------------------
-cmd = 'docker run -it --rm \
-    --name ubuntu_bash \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v '+location_m+':/home/Pipeline/ \
-    christophevde/ubuntu_bash:test \
-    /home/Scripts/00_threads.sh'
+if sys == "Windwows":
+    cmd = 'docker run -it --rm \
+        --name ubuntu_bash \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v '+location_m+':/home/Pipeline/ \
+        christophevde/ubuntu_bash:test \
+        /home/Scripts/00_threads.sh'
+else:
+    cmd = 'docker run -it --rm \
+        --name ubuntu_bash \
+        --user $(id -u):$(id -g) \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v '+location_m+':/home/Pipeline/ \
+        christophevde/ubuntu_bash:test \
+        /home/Scripts/00_threads.sh'
 os.system(cmd)
 
 env = open("./environment.txt","r")
@@ -98,12 +107,12 @@ import subprocess
 if sys == "Windows":
     host = subprocess.Popen('WMIC CPU Get NumberOfLogicalProcessors', shell=True, stdout=subprocess.PIPE)
 else:
-    subprocess.Popen('nproc --all', shell=True, stdout=subprocess.PIPE)
+    host = subprocess.Popen('nproc --all', shell=True, stdout=subprocess.PIPE)
 for line in host.stdout:
     # linux only gives a number, Windows gives a text line + a number line
     if any(i in line.decode("UTF-8") for i in ("0","1","2","3","4","5","6","7","8","9")):
         h_threads = int(line.decode("UTF-8"))
-        "print(h_threads)
+        #print(h_threads)
     #print("line="+line.decode("UTF-8"))
 #-----------------------------------------------------------------------------------------------------------
 
@@ -141,7 +150,7 @@ loc.write("rawdata="+rawdata+"\n")
 loc.write("rawdata_m="+rawdata_m+"\n")
 loc.write("location="+location+"\n")
 loc.write("location_m="+location_m+"\n")
-loc.write("threads="+threads+"\n")
+loc.write("threads="+str(threads)+"\n")
 loc.close()
 #===========================================================================================================
 
