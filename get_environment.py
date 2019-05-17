@@ -103,7 +103,7 @@ for line in host.stdout:
     # linux only gives a number, Windows gives a text line + a number line
     if any(i in line.decode("UTF-8") for i in ("0","1","2","3","4","5","6","7","8","9")):
         h_threads = int(line.decode("UTF-8"))
-        print(h_threads)
+        "print(h_threads)
     #print("line="+line.decode("UTF-8"))
 #-----------------------------------------------------------------------------------------------------------
 
@@ -152,7 +152,7 @@ cmd = 'docker run -it --rm \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v '+rawdata_m+':/home/rawdata/ \
     -v '+location_m+':/home/Pipeline/ \
-    christophevde/snakemake:stable \
+    christophevde/snakemake:test \
     /bin/bash -c "cd /home/Snakemake/ && snakemake ; /home/Scripts/copy_log.sh"'
 os.system(cmd)
 #===========================================================================================================
