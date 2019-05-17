@@ -6,11 +6,6 @@
 ############################################################################################################
 
 #SNAKEMAKE RUN PREPARATION==================================================================================
-# TIMER-----------------------------------------------------------------------------------------------------
-import time
-start = time.time()
-#-----------------------------------------------------------------------------------------------------------
-
 # GET INFO FROM HOST----------------------------------------------------------------------------------------
 env = open("/home/Pipeline/environment.txt","r")
 for line in env.readlines():
@@ -21,9 +16,6 @@ for line in env.readlines():
     elif "rawdata_m=" in line:
         rawdata_m = line.replace("rawdata_m=",'').replace('\n','')
         print(rawdata_m)
-    # GET THREADS-------------------------------------------------------------------------------------------
-    elif "threads=" in line:
-        threads = line.replace("threads=",'').replace('\n','')
 env.close()
 #-----------------------------------------------------------------------------------------------------------
 
@@ -63,7 +55,6 @@ rule copy_rawdata:
     shell:
         "docker run -it --rm \
         --name copy_rawdata \
-        --cpus={threads} \
         -v {rawdata_m}:/home/rawdata/ \
         -v {location_m}:/home/Pipeline/ \
         christophevde/ubuntu_bash:test \
@@ -84,7 +75,6 @@ rule fastqc_raw:
     shell:
         "docker run -it --rm \
         --name fastqc_raw \
-        --cpus={threads} \
         -v {location_m}/data:/home/data/ \
         christophevde/fastqc:test \
         /home/Scripts/QC01_fastqcRawData.sh"
@@ -103,7 +93,6 @@ rule multiqc_raw:
     shell:
         "docker run -it --rm \
         --name multiqc_raw \
-        --cpus={threads} \
         -v {location_m}/data:/home/data/ \
         christophevde/multiqc:test \
         /home/Scripts/QC01_multiqc_raw.sh"
@@ -124,7 +113,6 @@ rule Trimming:
     shell:
         "docker run -it --rm \
         --name trimmomatic \
-        --cpus={threads} \
         -v {location_m}/data:/home/data/ \
         christophevde/trimmomatic:test \
         /home/Scripts/02_runTrimmomatic.sh"
@@ -143,7 +131,6 @@ rule fastqc_trimmed:
     shell:
         "docker run -it --rm \
         --name fastqc_trim \
-        --cpus={threads} \
         -v {location_m}/data:/home/data/ \
         christophevde/fastqc:test \
         /home/Scripts/QC02_fastqcTrimmomatic.sh"
@@ -161,7 +148,6 @@ rule multiqc_trimmed:
     shell:
         "docker run -it --rm \
         --name multiqc_trim \
-        --cpus={threads} \
         -v {location_m}/data:/home/data/ \
         christophevde/multiqc:test \
         /home/Scripts/QC02_multiqcTrimmomatic.sh"
@@ -182,15 +168,9 @@ rule Spades_InputPathogenwatch:
     shell:
         "docker run -it --rm \
         --name spades \
-        --cpus={threads} \
         -v {location_m}/data:/home/data/ \
         christophevde/spades:test \
         /home/Scripts/03_spades.sh"
 
 #-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================
-
-# TIMER-----------------------------------------------------------------------------------------------------
-end = time.time()
-print(end - start)
-#-----------------------------------------------------------------------------------------------------------
