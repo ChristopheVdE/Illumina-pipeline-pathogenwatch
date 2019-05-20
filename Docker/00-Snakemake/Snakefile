@@ -168,7 +168,7 @@ rule Spades_InputPathogenwatch:
     shell:
         "docker run -it --rm \
         --name spades \
-        -v {location_m}/data:/home/data/ \
+        -v {location_m}:/home/Pipeline/ \
         christophevde/spades:test2 \
         /home/Scripts/03_spades.sh"
 
