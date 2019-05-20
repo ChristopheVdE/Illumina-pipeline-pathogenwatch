@@ -72,15 +72,6 @@ else:
         os.mkdir(location+"/data/")
 #-----------------------------------------------------------------------------------------------------------
 
-# write locations to file-----------------------------------------------------------------------------------
-    loc = open(location+"/environment.txt", mode="w")
-    loc.write("rawdata="+rawdata+"\n")
-    loc.write("rawdata_m="+rawdata_m+"\n")
-    loc.write("location="+location+"\n")
-    loc.write("location_m="+location_m+"\n")
-    loc.close()
-#===========================================================================================================
-
 # CREATE SAMPLE LIST========================================================================================
 # read directory content------------------------------------------------------------------------------------
     ids =[]
@@ -106,32 +97,13 @@ else:
     print("\nFetching system info (number of threads) please wait for the next input screen, this shouldn't take long\n")
 
 # MAX THREADS AVAILABLE IN DOCKER----------------------------------------------------------------------------
-    if sys == "Windows":
-        cmd = 'docker run -it --rm \
-            --name ubuntu_bash \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v '+location_m+':/home/Pipeline/ \
-            christophevde/ubuntu_bash:test \
-            /home/Scripts/00_threads.sh'
-    else:
-        cmd = 'docker run -it --rm \
-            --name ubuntu_bash \
-            --user $(id -u):$(id -g) \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v '+location_m+':/home/Pipeline/ \
-            christophevde/ubuntu_bash:test \
-            /home/Scripts/00_threads.sh'
-    os.system(cmd)
-
-    env = open("./environment.txt","r")
-    for line in env.readlines():
-        if "threads=" in line:
-            d_threads = line.replace("threads=",'').replace('\n','')
-    env.close()
+    import subprocess
+    docker = subprocess.Popen('docker run -it --rm --name ubuntu_bash christophevde/ubuntu_bash:test nproc --all', shell=True, stdout=subprocess.PIPE)
+    for line in docker.stdout:
+        d_threads = int(line.decode("UTF-8"))
 #-----------------------------------------------------------------------------------------------------------
 
 # TOTAL THREADS OF HOST-------------------------------------------------------------------------------------
-    import subprocess
     if sys == "Windows":
         host = subprocess.Popen('WMIC CPU Get NumberOfLogicalProcessors', shell=True, stdout=subprocess.PIPE)
     else:
@@ -144,7 +116,7 @@ else:
         #print("line="+line.decode("UTF-8"))
 #-----------------------------------------------------------------------------------------------------------
 
-# MAX THREADS FOR ANAKYSIS CALCULATION----------------------------------------------------------------------
+# SUGESTED THREADS FOR ANALYSIS CALCULATION----------------------------------------------------------------------
     if sys=="UNIX":
         if h_threads < 5:
             s_threads = h_threads//2
@@ -168,7 +140,7 @@ else:
         threads = s_threads
         print("\nChosen to use the suggested ammount of threads. Reserved {} threads for Docker".format(threads))
     else:
-        print("\nManully specified the ammount of threads. Reserved {} threads for Docker".format(threads))
+        print("\nManually specified the ammount of threads. Reserved {} threads for Docker".format(threads))
     print("-"*63+"\n")
 #===========================================================================================================
 
@@ -178,7 +150,7 @@ else:
     loc.write("rawdata_m="+rawdata_m+"\n")
     loc.write("location="+location+"\n")
     loc.write("location_m="+location_m+"\n")
-    loc.write("threads="+str(threads)+"\n")
+    loc.write("threads="+str(threads))
     loc.close()
 #===========================================================================================================
 
@@ -189,7 +161,7 @@ else:
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v '+rawdata_m+':/home/rawdata/ \
         -v '+location_m+':/home/Pipeline/ \
-        christophevde/snakemake:test \
+        christophevde/snakemake:test2 \
         /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
     os.system(cmd)
 #===========================================================================================================

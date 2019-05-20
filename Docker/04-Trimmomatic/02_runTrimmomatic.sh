@@ -9,29 +9,30 @@
 ############################################################################################################
 
 #VARIABLES--------------------------------------------------------------------------------------------------
-# inputFolder = /home/data/${id}/00_Rawdata
-# outputFolder = /home/data/${id}/02_Trimmomatic
+# inputFolder = /home/Pipeline/data/${id}/00_Rawdata
+# outputFolder = /home/Pipeline/data/${id}/02_Trimmomatic
+threads=`cat /home/Pipeline/environment.txt | grep "threads="`
+threads=${threads#"threads="}
 #-----------------------------------------------------------------------------------------------------------
 
 #TRIMMOMATIC PRE-START--------------------------------------------------------------------------------------
-threads=`nproc --all`
 ADAPTERFILE='/home/adapters/NexteraPE-PE.fa';
 #Fix possible EOL errors in sampleList.txt
-dos2unix /home/data/sampleList.txt
+dos2unix /home/Pipeline/data/sampleList.txt
 #-----------------------------------------------------------------------------------------------------------
 
 #RUN TRIMMOMATIC--------------------------------------------------------------------------------------------
 echo "Starting Trimmomatic with ${threads} threads"
-for id in `cat /home/data/sampleList.txt`; do
+for id in `cat /home/Pipeline/data/sampleList.txt`; do
 	#SPECIFY VARIABLES
-	inputFolder=/home/data/${id}/00_Rawdata
-	outputFolder=/home/data/${id}/02_Trimmomatic
+	# inputFolder=/home/Pipeline/data/${id}/00_Rawdata
+	# outputFolder=/home/Pipeline/data/${id}/02_Trimmomatic
 
 	#CREATE OUTPUTFOLDER IF NOT EXISTS
-	mkdir -p /home/data/${id}/02_Trimmomatic
+	mkdir -p /home/Pipeline/data/${id}/02_Trimmomatic
 
 	#CREATE temp folder-content-list
-	ls /home/data/${id}/00_Rawdata > /home/foldercontent.txt
+	ls /home/Pipeline/data/${id}/00_Rawdata > /home/foldercontent.txt
 	sed 's/_L001_R1_001.fastq.gz//g' /home/foldercontent.txt > /home/foldercontent2.txt
 	sed 's/_L001_R2_001.fastq.gz//g' /home/foldercontent2.txt > /home/foldercontent3.txt
 	uniq -d /home/foldercontent3.txt > /home/foldercontent4.txt; 
@@ -40,12 +41,12 @@ for id in `cat /home/data/sampleList.txt`; do
 	for i in `cat /home/foldercontent4.txt`; do
 		echo -e "\nSTARTING ${i} \n";
 		java -jar /home/Trimmomatic-0.39/trimmomatic-0.39.jar  \
-		PE -threads ${threads} -phred33 -trimlog /home/data/${i}/02_Trimmomatic/trimlog.txt \
-		/home/data/${i}/00_Rawdata/${i}_L001_R1_001.fastq.gz /home/data/${i}/00_Rawdata/${i}_L001_R2_001.fastq.gz \
-		/home/data/${i}/02_Trimmomatic/${i}_L001_R1_001_P.fastq.gz /home/data/${i}/02_Trimmomatic/${i}_L001_R1_001_U.fastq.gz \
-		/home/data/${i}/02_Trimmomatic/${i}_L001_R2_001_P.fastq.gz /home/data/${i}/02_Trimmomatic/${i}_L001_R2_001_U.fastq.gz \
+		PE -threads ${threads} -phred33 -trimlog /home/Pipeline/data/${i}/02_Trimmomatic/trimlog.txt \
+		/home/Pipeline/data/${i}/00_Rawdata/${i}_L001_R1_001.fastq.gz /home/Pipeline/data/${i}/00_Rawdata/${i}_L001_R2_001.fastq.gz \
+		/home/Pipeline/data/${i}/02_Trimmomatic/${i}_L001_R1_001_P.fastq.gz /home/Pipelinedata/${i}/02_Trimmomatic/${i}_L001_R1_001_U.fastq.gz \
+		/home/Pipeline/data/${i}/02_Trimmomatic/${i}_L001_R2_001_P.fastq.gz /home/Pipeline/data/${i}/02_Trimmomatic/${i}_L001_R2_001_U.fastq.gz \
 		ILLUMINACLIP:${ADAPTERFILE}:2:40:15 LEADING:20 TRAILING:20 SLIDINGWINDOW:4:20 MINLEN:36 \
-		2>&1 | tee -a /home/data/${i}/02_Trimmomatic/stdout_err.txt;
+		2>&1 | tee -a /home/Pipeline/data/${i}/02_Trimmomatic/stdout_err.txt;
 	done
 done
 #-----------------------------------------------------------------------------------------------------------

@@ -13,30 +13,31 @@
 #-----------------------------------------------------------------------------------------------------------
 
 #VARIABLES--------------------------------------------------------------------------------------------------
-threads=`nproc --all`
-# inputFolder = /home/data/${id}/00_Rawdata
-# outputFolder = /home/data/${id}/01_QC_rawdata/QC_FastQC
+threads=`cat /home/Pipeline/environment.txt | grep "threads="`
+threads=${threads#"threads="}
+# inputFolder = /home/Pipeline/data/${id}/00_Rawdata
+# outputFolder = /home/Pipeline/data/${id}/01_QC_rawdata/QC_FastQC
 #-----------------------------------------------------------------------------------------------------------
 
 #FASTQC PRE-START-------------------------------------------------------------------------------------------
 #Fix possible EOL errors in sampleList.txt
-dos2unix /home/data/sampleList.txt
+dos2unix /home/Pipeline/data/sampleList.txt
 echo
 #-----------------------------------------------------------------------------------------------------------
 
 #RUN FASTQC-------------------------------------------------------------------------------------------------
 echo "Starting FastQC with ${threads} threads"
-for id in `cat /home/data/sampleList.txt`; do
+for id in `cat /home/Pipeline/data/sampleList.txt`; do
      #CREATE OUTPUTFOLDER IF NOT EXISTS
-     mkdir -p /home/data/${id}/01_QC-Rawdata/QC_FastQC
+     mkdir -p /home/Pipeline/data/${id}/01_QC-Rawdata/QC_FastQC
      #RUN FASTQC
-     for i in $(ls /home/data/${id}/00_Rawdata | grep fastq.gz); do
+     for i in $(ls /home/Pipeline/data/${id}/00_Rawdata | grep fastq.gz); do
           echo -e "STARTING ${i} \n";
           fastqc --extract \
           -t ${threads} \
-          -o /home/data/${id}/01_QC-Rawdata/QC_FastQC \
-          /home/data/${id}/00_Rawdata/${i} \
-          2>&1 | tee -a /home/data/${id}/01_QC-Rawdata/QC_FastQC/stdout_err.txt ;
+          -o /home/Pipeline/data/${id}/01_QC-Rawdata/QC_FastQC \
+          /home/Pipeline/data/${id}/00_Rawdata/${i} \
+          2>&1 | tee -a /home/Pipeline/data/${id}/01_QC-Rawdata/QC_FastQC/stdout_err.txt ;
           echo -e "\n ${i} FINISHED \n";
      done
 done
