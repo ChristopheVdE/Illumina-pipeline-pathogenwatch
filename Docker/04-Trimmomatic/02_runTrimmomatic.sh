@@ -43,7 +43,7 @@ for id in `cat /home/Pipeline/data/sampleList.txt`; do
 		java -jar /home/Trimmomatic-0.39/trimmomatic-0.39.jar  \
 		PE -threads ${threads} -phred33 -trimlog /home/Pipeline/data/${i}/02_Trimmomatic/trimlog.txt \
 		/home/Pipeline/data/${i}/00_Rawdata/${i}_L001_R1_001.fastq.gz /home/Pipeline/data/${i}/00_Rawdata/${i}_L001_R2_001.fastq.gz \
-		/home/Pipeline/data/${i}/02_Trimmomatic/${i}_L001_R1_001_P.fastq.gz /home/Pipelinedata/${i}/02_Trimmomatic/${i}_L001_R1_001_U.fastq.gz \
+		/home/Pipeline/data/${i}/02_Trimmomatic/${i}_L001_R1_001_P.fastq.gz /home/Pipeline/data/${i}/02_Trimmomatic/${i}_L001_R1_001_U.fastq.gz \
 		/home/Pipeline/data/${i}/02_Trimmomatic/${i}_L001_R2_001_P.fastq.gz /home/Pipeline/data/${i}/02_Trimmomatic/${i}_L001_R2_001_U.fastq.gz \
 		ILLUMINACLIP:${ADAPTERFILE}:2:40:15 LEADING:20 TRAILING:20 SLIDINGWINDOW:4:20 MINLEN:36 \
 		2>&1 | tee -a /home/Pipeline/data/${i}/02_Trimmomatic/stdout_err.txt;
