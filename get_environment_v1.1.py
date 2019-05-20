@@ -64,7 +64,6 @@ else:
         print(" - rawdata={}".format(rawdata))
         print(" - Current location={}".format(location))
     print("-"*63)
-    print("location={}".format(location))
 #-----------------------------------------------------------------------------------------------------------
 
 # create location/data--------------------------------------------------------------------------------------
@@ -106,8 +105,16 @@ else:
 # TOTAL THREADS OF HOST-------------------------------------------------------------------------------------
     if sys == "Windows":
         host = subprocess.Popen('WMIC CPU Get NumberOfLogicalProcessors', shell=True, stdout=subprocess.PIPE)
+        # check if HyperV is enabled (indication of docker Version, used to give specific tips on preformance increase)
+        HV = subprocess.Popen('powershell.exe get-service | findstr vmcompute', shell=True, stdout=subprocess.PIPE) 
+        for line in HV.stdout:  
+            if "Running" in line.decode("utf-8"):
+                HyperV="True" 
+            else: 
+                HyperV="False" 
     else:
         host = subprocess.Popen('nproc --all', shell=True, stdout=subprocess.PIPE)
+
     for line in host.stdout:
         # linux only gives a number, Windows gives a text line + a number line
         if any(i in line.decode("UTF-8") for i in ("0","1","2","3","4","5","6","7","8","9")):
@@ -134,6 +141,21 @@ else:
     print("Total threads on host: {}".format(h_threads))
     print("Max threads in Docker: {}".format(d_threads))
     print("Suggest ammount of threads to use in the analysis: {}".format(s_threads))
+    if sys=="Windows":
+        print("\nTIP to increase performance (make more threads available to docker)")
+        if HyperV=="True":
+            print("  1) Open the settings menu of 'Docker Desktop'")
+            print("  2) Go to the advanced tab")
+            print("  3) Increase the CPU and RAM (memory) available to Docker by moving the corresponding sliders.")
+            print("     It's advised to keep some CPU and RAM reserved for the host system") 
+        else:
+            print("  1) Open Oracle Virtual Box")
+            print("  2) Select the Docker virtual image")
+            print("  3) Click on the cogwheel (settings)")
+            print("  4) Open the system menu")
+            print("  5) Increase basic memory by moving the slider (keep the slider in the green part)")
+            print("  6) Go to the processor tab in the system menu ")
+            print("  7) Increase available CPu by moving the slider (keep the slider in the green part)")
     threads = input("\nInput the ammount of threads to use for the analysis below.\
     \nIf you want to use the suggested ammount, just press ENTER (or type in the suggested number)\n")
     if threads =='':
