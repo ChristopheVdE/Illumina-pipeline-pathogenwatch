@@ -97,7 +97,7 @@ else:
 
 # MAX THREADS AVAILABLE IN DOCKER----------------------------------------------------------------------------
     import subprocess
-    docker = subprocess.Popen('docker run -it --rm --name ubuntu_bash christophevde/ubuntu_bash:test nproc --all', shell=True, stdout=subprocess.PIPE)
+    docker = subprocess.Popen('docker run -it --rm --name ubuntu_bash christophevde/ubuntu_bash:v2.0_stable nproc --all', shell=True, stdout=subprocess.PIPE)
     for line in docker.stdout:
         d_threads = int(line.decode("UTF-8"))
 #-----------------------------------------------------------------------------------------------------------
