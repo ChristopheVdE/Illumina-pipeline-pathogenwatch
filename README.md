@@ -1,4 +1,4 @@
-# Docker
+# Pipeline for analysis of S.typhi with Illumina data
 ## Introduction
 Containerised analysis pipeline for Salmonella thypi using Docker containers and the Snakemake tool.
 ## Installation
