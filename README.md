@@ -37,10 +37,25 @@ In Order to start the pipeline you only really need 1 file ("get_environment.py"
 - For Linux/ MacOS users: LINUX_run-pipeline.sh
 - For Windows users: WINDOWS_run-pipeline.cmd
 
-These scripts can be ativated by double clicking on them, after which each of them should ask for the location of the rawdata. These locations can easily be found by opening an explorer, navigating to the files and copying the path from there (most of the time the path will be displayed at the top of the screen). Please make sure that there are no spaces in the path to these locations.
-After the path is provided the script will automatically execute all the required steps without any user input. When the analysis is complete you will get message displayed in the command line indicating this. Together with this message, the time it took to complete the analysis will be displayed.
+For Linux/ MacOS users: the file permissions of the scripts might be changed after downloading. They should have executable rights in order to work.
 
-**WINDOWS**: before activating the scripts you will need to start docker. If you use docker-toolbox doudble click on the 'Docker quickstart terminal' shortcut to start up Docker. If you use 'Docker for windows' or are using Linux, then docker will (probably) automatically start up during system startup and you can just run the scripts.
+These scripts can be ativated by double clicking on them, after which each of them should ask for the location of the rawdata (see picture below). 
+
+
+### The input screen
+The screen in which you need to input the path looks like this:
+
+![Screenshot](./Images/inputwindow.png)
+
+1)	The place where you need to input the rawdata-location. These locations can easily be found by opening an explorer, navigating to the files and copying the path from there (most of the time the path will be displayed at the top of the screen). Please make sure that there are no spaces in the path to these locations.
+2)	A message displaying the paths/locations to the files. This message changes a little bit depending on the OS u are using
+3)	This are some Windows specific tips on how to give more recourses to docker
+4)	This is another input field to specify the threads/ CPU to be used for the analysis. This a more advanced option, if you don't know what this does then you should just press enter and go withteh suggested amount of threads.
+5)	If everything goes well you should see this orange text indicating that the analysis is starting.
+
+When the analysis is complete you will get message displayed in the command line indicating this. Together with this message, the time it took to complete the analysis will be displayed.
+
+**WINDOWS**: before activating the scripts you will need to start docker. If you use docker-toolbox doudble click on the 'Docker quickstart terminal' shortcut to start up Docker. If you use 'Docker for windows/ Docker Desktop' or are using Linux, then docker will (probably) automatically start up during system startup and you can just run the scripts.
 
 The other files found in this repository are the codes used to create the Docker images for the containers and the scripts that are loaded into these containers. You don't need these since the containers will automatically be downloaded and 'installed' when the pipeline is ran for the first time (download from Docker-HUB).
 
