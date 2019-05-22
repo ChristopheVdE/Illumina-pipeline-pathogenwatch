@@ -37,10 +37,16 @@ In Order to start the pipeline you only really need 1 file ("get_environment.py"
 - For Linux/ MacOS users: LINUX_run-pipeline.sh
 - For Windows users: WINDOWS_run-pipeline.cmd
 
-For Linux/ MacOS users: the file permissions of the scripts might be changed after downloading. They should have executable rights in order to work.
+For Linux/ MacOS users: the file permissions of the scripts might be changed after downloading. They should have executable rights in order to work. Enter "chmod 755 Linux_run-pipeline.sh" in a terminal to fix this. This guide give a non-terminal alternative for Mac-users, justkeep in mind that the file permissions should include 'execute' rights http://www.macinstruct.com/node/415.
 
-These scripts can be ativated by double clicking on them, after which each of them should ask for the location of the rawdata (see picture below). 
+Afterwards you might still need to specify that the file needs to be opened witht the terminal, this can be done like this:
+1)	The actual place where you need to input the rawdata-location
+2)	A message displaying the paths/locations to the files. You will have a slightly different message because you are using a Mac. Your message should be something similar to “Unix based system discovered, paths don’t need conversion”.
+3)	This are some Windows specific tips so you shouldn’t see these lines
+4)	This is another input field to specify the threads/ CPU to be used for the analysis. This a more advanced option, I suggest that you just press enter and go with the suggested amount of threads when this question comes up.
+5)	If everything goes well you should see this orange text indicating that the analysis is starting.
 
+You should now be able to execute the scripts by double clicking on them, after which each of them should ask for the location of the rawdata (see picture below). 
 
 ### The input screen
 The screen in which you need to input the path looks like this:
