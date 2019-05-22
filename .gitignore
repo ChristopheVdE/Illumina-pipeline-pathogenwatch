@@ -4,10 +4,8 @@
 *.zip
 *.fo
 *.txt
-*.png
 *.log
 *.json
 *.info
 environment.txt
-spaces.py
 /data
