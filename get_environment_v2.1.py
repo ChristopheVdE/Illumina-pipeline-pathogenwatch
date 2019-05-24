@@ -174,7 +174,7 @@ cmd = 'docker run -it --rm \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "'+rawdata_m+':/home/rawdata/" \
     -v "'+location_m+':/home/Pipeline/" \
-    christophevde/snakemake:v2.1_test \
+    christophevde/snakemake:v2.1_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
 os.system(cmd)
 #===========================================================================================================
