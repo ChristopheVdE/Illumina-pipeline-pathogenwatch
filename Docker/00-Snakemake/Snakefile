@@ -53,12 +53,12 @@ rule copy_rawdata:
     message:
         "Please wait while the rawdata is being copied to the current-analysis folder"
     shell:
-        "docker run -it --rm \
+        'docker run -it --rm \
         --name copy_rawdata \
-        -v {rawdata_m}:/home/rawdata/ \
-        -v {location_m}:/home/Pipeline/ \
+        -v "{rawdata_m}:/home/rawdata/" \
+        -v "{location_m}:/home/Pipeline/" \
         christophevde/ubuntu_bash:v2.0_stable \
-        /home/Scripts/01_copy_rawdata.sh"
+        /home/Scripts/01_copy_rawdata.sh'
     
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
@@ -73,11 +73,11 @@ rule fastqc_raw:
     message:
         "Analyzing raw-data with FastQC using Docker-container fastqc:v2.0_stable"
     shell:
-        "docker run -it --rm \
+        'docker run -it --rm \
         --name fastqc_raw \
-        -v {location_m}:/home/Pipeline/ \
+        -v "{location_m}:/home/Pipeline/" \
         christophevde/fastqc:v2.0_stable \
-        /home/Scripts/QC01_fastqcRawData.sh"
+        /home/Scripts/QC01_fastqcRawData.sh'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step3: running multiqc on the raw-data in the current-analysis folder
@@ -91,11 +91,11 @@ rule multiqc_raw:
     message:
         "Analyzing raw-data with MultiQC using Docker-container multiqc:v2.0_stable"
     shell:
-        "docker run -it --rm \
+        'docker run -it --rm \
         --name multiqc_raw \
-        -v {location_m}/data:/home/data/ \
+        -v "{location_m}/data:/home/data/" \
         christophevde/multiqc:v2.0_stable \
-        /home/Scripts/QC01_multiqc_raw.sh"
+        /home/Scripts/QC01_multiqc_raw.sh'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step4: Trimming
@@ -111,11 +111,11 @@ rule Trimming:
     message:
         "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:v2.0_stable"
     shell:
-        "docker run -it --rm \
+        'docker run -it --rm \
         --name trimmomatic \
-        -v {location_m}:/home/Pipeline/ \
+        -v "{location_m}:/home/Pipeline/" \
         christophevde/trimmomatic:v2.0_stable \
-        /home/Scripts/02_runTrimmomatic.sh"
+        /home/Scripts/02_runTrimmomatic.sh'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step5: FastQC trimmed data (paired reads only)
@@ -129,11 +129,11 @@ rule fastqc_trimmed:
     message:
         "Analyzing trimmed-data with FastQC using Docker-container fastqc:v2.0_stable"
     shell:
-        "docker run -it --rm \
+        'docker run -it --rm \
         --name fastqc_trim \
-        -v {location_m}:/home/Pipeline/ \
+        -v "{location_m}:/home/Pipeline/" \
         christophevde/fastqc:v2.0_stable \
-        /home/Scripts/QC02_fastqcTrimmomatic.sh"
+        /home/Scripts/QC02_fastqcTrimmomatic.sh'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step6: MultiQC trimmed data (paired reads only) 
@@ -146,11 +146,11 @@ rule multiqc_trimmed:
     message:
         "Analyzing trimmed-data with MultiQC using Docker-container multiqc:v2.0_stable"
     shell:
-        "docker run -it --rm \
+        'docker run -it --rm \
         --name multiqc_trim \
-        -v {location_m}/data:/home/data/ \
+        -v "{location_m}/data:/home/data/" \
         christophevde/multiqc:v2.0_stable \
-        /home/Scripts/QC02_multiqcTrimmomatic.sh"
+        /home/Scripts/QC02_multiqcTrimmomatic.sh'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step7: SPAdes
@@ -166,11 +166,11 @@ rule Spades_InputPathogenwatch:
     message:
         "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:v2.0_stable"
     shell:
-        "docker run -it --rm \
+        'docker run -it --rm \
         --name spades \
-        -v {location_m}:/home/Pipeline/ \
+        -v "{location_m}:/home/Pipeline/" \
         christophevde/spades:v2.0_stable \
-        /home/Scripts/03_spades.sh"
+        /home/Scripts/03_spades.sh'
 
 #-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================
