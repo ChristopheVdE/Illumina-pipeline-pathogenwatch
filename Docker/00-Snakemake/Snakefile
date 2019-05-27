@@ -146,7 +146,7 @@ rule Spades_InputPathogenwatch:
         expand("/home/Pipeline/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html",id=ids)    # output multiqc-trimmed
     output:
         expand("/home/Pipeline/{id}/04_SPAdes/dataset.info",id=ids),
-        directory(expand("/home/Pipeline/data/{id}/05_inputPathogenWatch",id=ids))
+        directory(expand("/home/Pipeline/{id}/05_inputPathogenWatch",id=ids))
     message:
         "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:v2.2_test"
     shell:
