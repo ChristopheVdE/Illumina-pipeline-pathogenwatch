@@ -16,7 +16,7 @@ dos2unix /home/Pipeline/sampleList.txt
 echo -e "\nCopying files, please wait"
 for id in `cat /home/Pipeline/sampleList.txt`; do
     mkdir -p /home/Pipeline/${id}/00_Rawdata
-    cp -vr /home/rawdata/${id}*.fastq.gz /home/Pipeline/${id}/00_Rawdata/ \
+    cp -vrn /home/rawdata/${id}*.fastq.gz /home/Pipeline/${id}/00_Rawdata/ \
     2>&1 | tee -a /home/Pipeline/${id}/00_Rawdata/stdout.txt
 done    
 echo -e "Done\n"
