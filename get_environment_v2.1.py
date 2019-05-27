@@ -92,7 +92,8 @@ if not os.path.exists(analysis):
 # read directory content------------------------------------------------------------------------------------
 ids =[]
 for sample in os.listdir(rawdata):
-    ids.append(sample.replace('_L001_R1_001.fastq.gz','').replace('_L001_R2_001.fastq.gz',''))
+    if ".fastq.gz" in sample:
+        ids.append(sample.replace('_L001_R1_001.fastq.gz','').replace('_L001_R2_001.fastq.gz',''))
 ids = sorted(set(ids))
 #-----------------------------------------------------------------------------------------------------------
 
@@ -185,12 +186,30 @@ loc.write("threads="+str(threads))
 loc.close()
 #===========================================================================================================
 
+# PREPARE FILESTRUCTURE FOR SNAKEMAKE=======================================================================
+# Pipeline step1: copy/ move files from raw data folder to 'Sample_id/00_Rawdata/' in the analysis-results folder
+print("Please wait while the rawdata is being copied to the current-analysis folder")
+if rawdata == analysis:
+    cmd = 'docker run -it --rm \
+        --name copy_rawdata \
+        -v "'+rawdata_m+':/home/rawdata/" \
+        christophevde/ubuntu_bash:v2.2_test \
+        /home/Scripts/01_move_rawdata.sh'
+else:
+    cmd = 'docker run -it --rm \
+        --name copy_rawdata \
+        -v "'+rawdata_m+':/home/rawdata/" \
+        -v "'+analysis_m+':/home/Pipeline/" \
+        christophevde/ubuntu_bash:v2.2_test \
+        /home/Scripts/01_copy_rawdata.sh'
+os.system(cmd)
+#===========================================================================================================
+
 # EXECUTE SNAKEMAKE DOCKER==================================================================================
 cmd = 'docker run -it --rm \
     --name snakemake \
     --cpuset-cpus="0" \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v "'+rawdata_m+':/home/rawdata/" \
     -v "'+analysis_m+':/home/Pipeline/" \
     christophevde/snakemake:v2.1_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'

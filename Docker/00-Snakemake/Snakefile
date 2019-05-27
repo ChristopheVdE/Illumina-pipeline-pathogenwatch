@@ -41,25 +41,9 @@ rule all:
         "Analysis done, results can be found in {analysis_m}/data"
 
 #-----------------------------------------------------------------------------------------------------------
-# Pipeline step1: copying files from original raw data folder to data-folder of current analysis
+# Pipeline step1: copy/move files from raw data folder to 'Sample_id/00_Rawdata/' in the analysis-results folder
+# executed in get_environment.py
 
-rule copy_rawdata:
-    input: 
-        expand("/home/rawdata/{id}_L001_R1_001.fastq.gz",id=ids),
-        expand("/home/rawdata/{id}_L001_R2_001.fastq.gz",id=ids)
-    output:
-        expand("/home/Pipeline/data/{id}/00_Rawdata/{id}_L001_R1_001.fastq.gz",id=ids),
-        expand("/home/Pipeline/data/{id}/00_Rawdata/{id}_L001_R2_001.fastq.gz",id=ids)
-    message:
-        "Please wait while the rawdata is being copied to the current-analysis folder"
-    shell:
-        'docker run -it --rm \
-        --name copy_rawdata \
-        -v "{rawdata_m}:/home/rawdata/" \
-        -v "{analysis_m}:/home/Pipeline/" \
-        christophevde/ubuntu_bash:v2.0_stable \
-        /home/Scripts/01_copy_rawdata.sh'
-    
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step2: running fastqc on the raw-data in the current-analysis folder
 
