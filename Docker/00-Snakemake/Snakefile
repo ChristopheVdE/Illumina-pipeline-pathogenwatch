@@ -10,9 +10,9 @@
 env = open("/home/Pipeline/environment.txt","r")
 for line in env.readlines():
     # GET LOCATIONS-----------------------------------------------------------------------------------------
-    if "location_m=" in line:
-        location_m = line.replace("location_m=",'').replace('\n','')
-        print(location_m)
+    if "analysis_m=" in line:
+        analysis_m = line.replace("analysis_m=",'').replace('\n','')
+        print(analysis_m)
     elif "rawdata_m=" in line:
         rawdata_m = line.replace("rawdata_m=",'').replace('\n','')
         print(rawdata_m)
@@ -38,7 +38,7 @@ rule all:
         expand("/home/Pipeline/data/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html",id=ids),                       
         expand("/home/Pipeline/data/{id}/04_SPAdes/dataset.info",id=ids)                                             
     message:
-        "Analysis done, results can be found in {location_m}/data"
+        "Analysis done, results can be found in {analysis_m}/data"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step1: copying files from original raw data folder to data-folder of current analysis
@@ -56,7 +56,7 @@ rule copy_rawdata:
         'docker run -it --rm \
         --name copy_rawdata \
         -v "{rawdata_m}:/home/rawdata/" \
-        -v "{location_m}:/home/Pipeline/" \
+        -v "{analysis_m}:/home/Pipeline/" \
         christophevde/ubuntu_bash:v2.0_stable \
         /home/Scripts/01_copy_rawdata.sh'
     
@@ -75,7 +75,7 @@ rule fastqc_raw:
     shell:
         'docker run -it --rm \
         --name fastqc_raw \
-        -v "{location_m}:/home/Pipeline/" \
+        -v "{analysis_m}:/home/Pipeline/" \
         christophevde/fastqc:v2.0_stable \
         /home/Scripts/QC01_fastqcRawData.sh'
 
@@ -93,7 +93,7 @@ rule multiqc_raw:
     shell:
         'docker run -it --rm \
         --name multiqc_raw \
-        -v "{location_m}/data:/home/data/" \
+        -v "{analysis_m}/data:/home/data/" \
         christophevde/multiqc:v2.0_stable \
         /home/Scripts/QC01_multiqc_raw.sh'
 
@@ -113,7 +113,7 @@ rule Trimming:
     shell:
         'docker run -it --rm \
         --name trimmomatic \
-        -v "{location_m}:/home/Pipeline/" \
+        -v "{analysis_m}:/home/Pipeline/" \
         christophevde/trimmomatic:v2.0_stable \
         /home/Scripts/02_runTrimmomatic.sh'
 
@@ -131,7 +131,7 @@ rule fastqc_trimmed:
     shell:
         'docker run -it --rm \
         --name fastqc_trim \
-        -v "{location_m}:/home/Pipeline/" \
+        -v "{analysis_m}:/home/Pipeline/" \
         christophevde/fastqc:v2.0_stable \
         /home/Scripts/QC02_fastqcTrimmomatic.sh'
 
@@ -148,7 +148,7 @@ rule multiqc_trimmed:
     shell:
         'docker run -it --rm \
         --name multiqc_trim \
-        -v "{location_m}/data:/home/data/" \
+        -v "{analysis_m}/data:/home/data/" \
         christophevde/multiqc:v2.0_stable \
         /home/Scripts/QC02_multiqcTrimmomatic.sh'
 
@@ -168,7 +168,7 @@ rule Spades_InputPathogenwatch:
     shell:
         'docker run -it --rm \
         --name spades \
-        -v "{location_m}:/home/Pipeline/" \
+        -v "{analysis_m}:/home/Pipeline/" \
         christophevde/spades:v2.0_stable \
         /home/Scripts/03_spades.sh'
 

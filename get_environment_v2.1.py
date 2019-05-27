@@ -11,55 +11,81 @@ start = datetime.datetime.now()
 #===========================================================================================================
 
 # GET LOCATIONS=============================================================================================
-# input directory (rawdata)----------------------------------------------------------------------------------
-import os
-print("LOCATION INFO"+"-"*50)
-print("Before submitting the rawdata location, please check wheter upper and lower case letters are correct")
-print("Please also check if there are spaces in your path, this will give an error at the moment (I'm trying to get this fixed)")
-print("Windows users using 'Docker-toolbox': \nIt's advised to have the rawdata on the C-drive before the analysis, otherwise there might be problems finding the location")
-rawdata = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
-
-# get current directory-------------------------------------------------------------------------------------
-location = os.getcwd()
-#===========================================================================================================
-
 #find system-type-------------------------------------------------------------------------------------------
 import platform
 system=platform.platform()
+import subprocess
+
+if "Windows" in system:
+    sys="Windows"
+    print("\nWindows based system detected ({})\n".format(system))
+    # check if HyperV is enabled (indication of docker Version, used to give specific tips on preformance increase)
+    HV = subprocess.Popen('powershell.exe get-service | findstr vmcompute', shell=True, stdout=subprocess.PIPE) 
+    for line in HV.stdout:  
+        if "Running" in line.decode("utf-8"):
+            HyperV="True" 
+        else: 
+            HyperV="False" 
+else:
+    sys="UNIX"
+    print("\nUNIX based system detected ({})\n".format(system))
 #-----------------------------------------------------------------------------------------------------------
 
+# input directory (rawdata)---------------------------------------------------------------------------------
+import os
+print("\nLOCATION INFO"+"-"*50)
+print("Before submitting the locations, please check wheter upper and lower case letters are correct")
+if sys=="Windows":
+    if HyperV=="False":
+        print("Docker-toolbox for Windows detected:")
+        print("It's advised to have both the RAWDATA and the RESULTS folder on the C-drive before the analysis, otherwise there might be problems finding the location")
+        print("To give Docker acces to more drives:")
+        print("   1) Open Oracle Virtual Box")
+        print("   2) Select the Docker Virtual machine, click on settings (the cogwheel) and then on 'Shared folders'")
+        print("   3) Click on 'add shared folder', provide the path to the folder, name the folder and select 'automatic mounting'")
+        print("[WARNING] The paths of the newly added shared-folders might not work in this script (Untested)\n")
+    else:
+        print("Docker Desktop for Windows detected:")
+        print("It's advised to have both the RAWDATA and the RESULTS folder on the C-drive before the analysis, otherwise there might be problems finding the location")
+        print("To give Docker acces to more drives:")
+        print("   1) Right click on the Docker desktop icon in the taskbar and select 'Settings'")
+        print("   2) Go to 'Shared Drives'")
+        print("   3) Check to boxes for the drives you want docker to have acces to and press 'Apply'. Windows will ask for your password afther wich Docker will restart and the folders should be available")
+        print("[WARNING] Changing your Windows password can apparently break docker acces to the shared drives, just repeat this process and provide your new password to fix this\n")
+rawdata = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
+analysis = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
+#===========================================================================================================
+
 # fix the path if system is Windows-------------------------------------------------------------------------
-import string
-if "Windows" in system:
-    print("\nWindows based system detected ({}), converting paths for use in Docker:".format(system))
-    sys="Windows"
+if sys=="Windows":
+    print("\nConverting Windows paths for use in Docker:")
+    import string
     for i in list(string.ascii_lowercase+string.ascii_uppercase):
         if rawdata.startswith(i+":/"):
             rawdata_m = rawdata.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
         elif rawdata.startswith(i+":\\"):
             rawdata_m = rawdata.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-        if location.startswith(i+":/"):
-            location_m = location.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
-        elif location.startswith(i+":\\"):
-            location_m = location.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
+        if analysis.startswith(i+":/"):
+            analysis_m = analysis.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
+        elif analysis.startswith(i+":\\"):
+            analysis_m = analysis.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
     print(" - Raw-data location ({}) changed to: {}".format(rawdata,rawdata_m))
-    print(" - Current location ({}) changed to: {}".format(location,location_m))
+    print(" - Results location ({}) changed to: {}".format(analysis,analysis_m))
 # ----------------------------------------------------------------------------------------------------------
 
 # keeping paths as they are if system isn't Windows---------------------------------------------------------
 else:
-    sys="UNIX"
     rawdata_m = rawdata
-    location_m = location
-    print("\nUNIX based system detected ({}), paths shouldn't require a conversion for use in Docker:".format(system))
-    print(" - rawdata={}".format(rawdata))
-    print(" - Current location={}".format(location))
+    analysis_m = analysis
+    print("\nUNIX paths shouldn't require a conversion for use in Docker:")
+    print(" - Rawdata={}".format(rawdata))
+    print(" - Results location={}".format(analysis))
 print("-"*63)
 #-----------------------------------------------------------------------------------------------------------
 
 # create location/data--------------------------------------------------------------------------------------
-if not os.path.exists(location+"/data"):
-    os.mkdir(location+"/data/")
+if not os.path.exists(analysis):
+    os.mkdir(analysis)
 #-----------------------------------------------------------------------------------------------------------
 
 # CREATE SAMPLE LIST========================================================================================
@@ -71,7 +97,7 @@ ids = sorted(set(ids))
 #-----------------------------------------------------------------------------------------------------------
 
 # writhing samplelist.txt-----------------------------------------------------------------------------------
-file = open(location+"/data/sampleList.txt",mode="w")
+file = open(analysis+"/sampleList.txt",mode="w")
 for i in ids:
     file.write(i+"\n")
 file.close()
@@ -87,7 +113,6 @@ file.close()
 print("\nFetching system info (number of threads) please wait for the next input screen, this shouldn't take long\n")
 
 # MAX THREADS AVAILABLE IN DOCKER----------------------------------------------------------------------------
-import subprocess
 docker = subprocess.Popen('docker run -it --rm --name ubuntu_bash christophevde/ubuntu_bash:v2.0_stable nproc --all', shell=True, stdout=subprocess.PIPE)
 for line in docker.stdout:
     d_threads = int(line.decode("UTF-8"))
@@ -96,13 +121,6 @@ for line in docker.stdout:
 # TOTAL THREADS OF HOST-------------------------------------------------------------------------------------
 if sys == "Windows":
     host = subprocess.Popen('WMIC CPU Get NumberOfLogicalProcessors', shell=True, stdout=subprocess.PIPE)
-    # check if HyperV is enabled (indication of docker Version, used to give specific tips on preformance increase)
-    HV = subprocess.Popen('powershell.exe get-service | findstr vmcompute', shell=True, stdout=subprocess.PIPE) 
-    for line in HV.stdout:  
-        if "Running" in line.decode("utf-8"):
-            HyperV="True" 
-        else: 
-            HyperV="False" 
 else:
     host = subprocess.Popen('nproc --all', shell=True, stdout=subprocess.PIPE)
 
@@ -114,7 +132,7 @@ for line in host.stdout:
     #print("line="+line.decode("UTF-8"))
 #-----------------------------------------------------------------------------------------------------------
 
-# SUGESTED THREADS FOR ANALYSIS CALCULATION----------------------------------------------------------------------
+# SUGESTED THREADS FOR ANALYSIS CALCULATION-----------------------------------------------------------------
 if sys=="UNIX":
     if h_threads < 5:
         s_threads = h_threads//2
@@ -158,11 +176,11 @@ print("-"*63+"\n")
 #===========================================================================================================
 
 # WRITE ALL HOST INFO TO FILE===============================================================================
-loc = open(location+"/environment.txt", mode="w")
+loc = open(analysis+"/environment.txt", mode="w")
 loc.write("rawdata="+rawdata+"\n")
 loc.write("rawdata_m="+rawdata_m+"\n")
-loc.write("location="+location+"\n")
-loc.write("location_m="+location_m+"\n")
+loc.write("analysis="+analysis+"\n")
+loc.write("analysis_m="+analysis_m+"\n")
 loc.write("threads="+str(threads))
 loc.close()
 #===========================================================================================================
@@ -173,7 +191,7 @@ cmd = 'docker run -it --rm \
     --cpuset-cpus="0" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "'+rawdata_m+':/home/rawdata/" \
-    -v "'+location_m+':/home/Pipeline/" \
+    -v "'+analysis_m+':/home/Pipeline/" \
     christophevde/snakemake:v2.1_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
 os.system(cmd)
