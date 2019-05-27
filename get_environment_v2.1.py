@@ -192,7 +192,7 @@ snake = 'docker run -it --rm \
     --cpuset-cpus="0" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "'+analysis_m+':/home/Pipeline/" \
-    christophevde/snakemake:v2.2_test \
+    christophevde/snakemake:v2.2_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
 #==========================================================================================================
 
@@ -209,15 +209,15 @@ if rawdata == analysis:
     move = 'docker run -it --rm \
         --name copy_rawdata \
         -v "'+rawdata_m+':/home/rawdata/" \
-        christophevde/ubuntu_bash:v2.2_test \
+        christophevde/ubuntu_bash:v2.2_stable \
         /home/Scripts/01_move_rawdata.sh'
     os.system(move)
     os.system(snake)
     delete = 'docker run -it --rm \
         --name copy_rawdata \
         -v "'+rawdata_m+':/home/rawdata/" \
-        christophevde/ubuntu_bash:v2.2_test \
-        /home/Scripts/01_move_rawdata.sh'
+        christophevde/ubuntu_bash:v2.2_stable \
+        /home/Scripts/02_delete_rawdata.sh'
     os.system(delete)
 #-----------------------------------------------------------------------------------------------------------
 
@@ -227,7 +227,7 @@ else:
         --name copy_rawdata \
         -v "'+rawdata_m+':/home/rawdata/" \
         -v "'+analysis_m+':/home/Pipeline/" \
-        christophevde/ubuntu_bash:v2.2_test \
+        christophevde/ubuntu_bash:v2.2_stable \
         /home/Scripts/01_copy_rawdata.sh'
     os.system(copy)
 # execute snakemake docker

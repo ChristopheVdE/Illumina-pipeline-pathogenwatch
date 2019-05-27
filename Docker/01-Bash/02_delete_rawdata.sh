@@ -13,7 +13,7 @@ dos2unix /home/rawdata/sampleList.txt
 #----------------------------------------------------------------------------------
 
 # copy the 00_Rawdata into the current analysis folder
-echo -e "\removing duplicate rawdata files, please wait"
+echo -e "\nRemoving duplicate rawdata files, please wait"
 for id in `cat /home/rawdata/sampleList.txt`; do
     rm /home/rawdata/${id}*.fastq.gz
 done    

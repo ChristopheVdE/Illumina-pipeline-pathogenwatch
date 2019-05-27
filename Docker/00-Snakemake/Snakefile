@@ -12,10 +12,6 @@ for line in env.readlines():
     # GET LOCATIONS-----------------------------------------------------------------------------------------
     if "analysis_m=" in line:
         analysis_m = line.replace("analysis_m=",'').replace('\n','')
-        print(analysis_m)
-    elif "rawdata_m=" in line:
-        rawdata_m = line.replace("rawdata_m=",'').replace('\n','')
-        print(rawdata_m)
 env.close()
 #-----------------------------------------------------------------------------------------------------------
 
@@ -55,12 +51,12 @@ rule fastqc_raw:
         expand("/home/Pipeline/{id}/01_QC-Rawdata/QC_FastQC/{id}_L001_R1_001_fastqc.html",id=ids),
         expand("/home/Pipeline/{id}/01_QC-Rawdata/QC_FastQC/{id}_L001_R2_001_fastqc.html",id=ids)
     message:
-        "Analyzing raw-data with FastQC using Docker-container fastqc:v2.2_test"
+        "Analyzing raw-data with FastQC using Docker-container fastqc:v2.2_stable"
     shell:
         'docker run -it --rm \
         --name fastqc_raw \
         -v "{analysis_m}:/home/Pipeline/" \
-        christophevde/fastqc:v2.2_test \
+        christophevde/fastqc:v2.2_stable \
         /home/Scripts/QC01_fastqcRawData.sh'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -73,12 +69,12 @@ rule multiqc_raw:
     output:
         expand("/home/Pipeline/{id}/01_QC-Rawdata/QC_MultiQC/multiqc_report.html",id=ids)             #Results MultiQC for each sample separately
     message:
-        "Analyzing raw-data with MultiQC using Docker-container multiqc:v2.2_test"
+        "Analyzing raw-data with MultiQC using Docker-container multiqc:v2.2_stable"
     shell:
         'docker run -it --rm \
         --name multiqc_raw \
         -v "{analysis_m}:/home/Pipeline/" \
-        christophevde/multiqc:v2.2_test \
+        christophevde/multiqc:v2.2_stable \
         /home/Scripts/QC01_multiqc_raw.sh'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -93,12 +89,12 @@ rule Trimming:
         expand("/home/Pipeline/{id}/02_Trimmomatic/{id}_L001_R1_001_P.fastq.gz",id=ids),
         expand("/home/Pipeline/{id}/02_Trimmomatic/{id}_L001_R2_001_U.fastq.gz",id=ids)
     message:
-        "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:v2.2_test"
+        "Trimming raw-data with Trimmomatic v0.39 using Docker-container trimmomatic:v2.2_stable"
     shell:
         'docker run -it --rm \
         --name trimmomatic \
         -v "{analysis_m}:/home/Pipeline/" \
-        christophevde/trimmomatic:v2.2_test \
+        christophevde/trimmomatic:v2.2_stable \
         /home/Scripts/02_runTrimmomatic.sh'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -111,12 +107,12 @@ rule fastqc_trimmed:
     output:
         expand("/home/Pipeline/{id}/03_QC-Trimmomatic_Paired/QC_FastQC/{id}_L001_R1_001_P_fastqc.html",id=ids)
     message:
-        "Analyzing trimmed-data with FastQC using Docker-container fastqc:v2.2_test"
+        "Analyzing trimmed-data with FastQC using Docker-container fastqc:v2.2_stable"
     shell:
         'docker run -it --rm \
         --name fastqc_trim \
         -v "{analysis_m}:/home/Pipeline/" \
-        christophevde/fastqc:v2.2_test \
+        christophevde/fastqc:v2.2_stable \
         /home/Scripts/QC02_fastqcTrimmomatic.sh'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -128,12 +124,12 @@ rule multiqc_trimmed:
     output:
         expand("/home/Pipeline/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html",id=ids)
     message:
-        "Analyzing trimmed-data with MultiQC using Docker-container multiqc:v2.2_test"
+        "Analyzing trimmed-data with MultiQC using Docker-container multiqc:v2.2_stable"
     shell:
         'docker run -it --rm \
         --name multiqc_trim \
         -v "{analysis_m}:/home/Pipeline/" \
-        christophevde/multiqc:v2.2_test \
+        christophevde/multiqc:v2.2_stable \
         /home/Scripts/QC02_multiqcTrimmomatic.sh'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -148,12 +144,12 @@ rule Spades_InputPathogenwatch:
         expand("/home/Pipeline/{id}/04_SPAdes/dataset.info",id=ids),
         directory(expand("/home/Pipeline/{id}/05_inputPathogenWatch",id=ids))
     message:
-        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:v2.2_test"
+        "assembling genome from trimmed-data with SPAdes v3.13.1 using Docker-container SPAdes:v2.2_stable"
     shell:
         'docker run -it --rm \
         --name spades \
         -v "{analysis_m}:/home/Pipeline/" \
-        christophevde/spades:v2.2_test \
+        christophevde/spades:v2.2_stable \
         /home/Scripts/03_spades.sh'
 
 #-----------------------------------------------------------------------------------------------------------
