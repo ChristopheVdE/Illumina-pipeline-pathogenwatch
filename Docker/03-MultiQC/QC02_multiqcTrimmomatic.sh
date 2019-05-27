@@ -8,13 +8,13 @@
 ############################################################################################################
 
 #VARIABLES--------------------------------------------------------------------------------------------------
-# inputFolder = /home/data/{id}/03_QC-Trimmomatic_Paired/QC_FastQC
-# outputFolder = /home/data/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC
+# inputFolder = /home/{id}/03_QC-Trimmomatic_Paired/QC_FastQC
+# outputFolder = /home/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC
 #----------------------------------------------------------------------------------------------------------
 
 #MultiQC PRE-START------------------------------------------------------------------------------------------
 #Fix possible EOL errors in sampleList.txt
-dos2unix /home/data/sampleList.txt
+dos2unix /home/Pipeline/sampleList.txt
 #-----------------------------------------------------------------------------------------------------------
 
 #===========================================================================================================
@@ -26,13 +26,13 @@ dos2unix /home/data/sampleList.txt
 mkdir -p /home/fastqc-results
 # create outputfolder MultiQC full run trimmed data
 run="RUN_"`date +%Y%m%d`
-mkdir -p /home/data/QC_MultiQC/${run}/QC-Trimmed
+mkdir -p /home/Pipeline/QC_MultiQC/${run}/QC-Trimmed
 #-----------------------------------------------------------------------------------------------------------
 
 # COLLECT FASTQC DATA---------------------------------------------------------------------------------------
 # collect all fastqc results of the samples in this run into this temp folder
-for id in `cat /home/data/sampleList.txt`; do
-      cp -r /home/data/${id}/03_QC-Trimmomatic_Paired/QC_FastQC/* /home/fastqc-results/
+for id in `cat /home/Pipeline/sampleList.txt`; do
+      cp -r /home/Pipeline/${id}/03_QC-Trimmomatic_Paired/QC_FastQC/* /home/fastqc-results/
 done
 #-----------------------------------------------------------------------------------------------------------
 
@@ -40,10 +40,10 @@ done
 echo -e "\nStarting MultiQC on paired-end trimmed data of FULL RUN\n"
 echo "----------"
 multiqc /home/fastqc-results/ \
--o /home/data/QC_MultiQC/${run}/QC-Trimmed \
-2>&1 | tee -a /home/data/QC_MultiQC/${run}/QC-Trimmed/stdout_err.txt;
+-o /home/Pipeline/QC_MultiQC/${run}/QC-Trimmed \
+2>&1 | tee -a /home/Pipeline/QC_MultiQC/${run}/QC-Trimmed/stdout_err.txt;
 echo "----------"
-echo -e "\nDone, output file can be found in: /home/data/QC_MultiQC/QC-Trimmed\n"
+echo -e "\nDone"
 #-----------------------------------------------------------------------------------------------------------
 
 #===========================================================================================================
@@ -51,18 +51,18 @@ echo -e "\nDone, output file can be found in: /home/data/QC_MultiQC/QC-Trimmed\n
 #===========================================================================================================
 
 #EXECUTE MultiQC--------------------------------------------------------------------------------------------
-for id in `cat /home/data/sampleList.txt`; do
+for id in `cat /home/Pipeline/sampleList.txt`; do
       #CREATE OUTPUTFOLDER IF NOT EXISTS
-      cd /home/data/${id}/03_QC-Trimmomatic_Paired/
+      cd /home/Pipeline/${id}/03_QC-Trimmomatic_Paired/
       mkdir -p QC_MultiQC/
       #RUN MultiQC
-      echo -e "\nStarting MultiQC on: /home/data/${id}/03_QC-Trimmomatic_Paired/QC_FastQC/\n"
+      echo -e "\nStarting MultiQC on: /home/Pipeline/${id}/03_QC-Trimmomatic_Paired/QC_FastQC/\n"
       echo "----------"
-      multiqc /home/data/${id}/03_QC-Trimmomatic_Paired/QC_FastQC/ \
-      -o /home/data/${id}/03_QC-Trimmomatic_Paired/QC_MultiQC \
-      2>&1 | tee -a /home/data/${id}/03_QC-Trimmomatic_Paired/QC_MultiQC/stdout_err.txt;
+      multiqc /home/Pipeline/${id}/03_QC-Trimmomatic_Paired/QC_FastQC/ \
+      -o /home/Pipeline/${id}/03_QC-Trimmomatic_Paired/QC_MultiQC \
+      2>&1 | tee -a /home/Pipeline/${id}/03_QC-Trimmomatic_Paired/QC_MultiQC/stdout_err.txt;
       echo "----------"
-      echo -e "\nDone, output file can be found in: /home/data/${id}/03_QC-Trimmomatic_Paired/QC_MultiQC\n"
+      echo -e "\nDone"
 done
 #-----------------------------------------------------------------------------------------------------------
 

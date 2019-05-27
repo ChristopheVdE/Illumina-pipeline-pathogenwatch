@@ -14,24 +14,24 @@ threads=${threads#"threads="}
 #----------------------------------------------------------------------------------
 
 #SPECIFY VARIABLES-----------------------------------------------------------------
-#inputSpades=/home/data/${id}/02_Trimmomatic
-#outputSpades=/home/data/${id}/04_Spades
-#outputPathwatch=/home/data/${id}/05_inputPathogenWatch
+#inputSpades=/home/Pipeline/${id}/02_Trimmomatic
+#outputSpades=/home/Pipeline/${id}/04_Spades
+#outputPathwatch=/home/Pipeline/${id}/05_inputPathogenWatch
 #-----------------------------------------------------------------------------------
 
 #Fix possible EOL errors in sampleList.txt
-dos2unix /home/Pipeline/data/sampleList.txt
+dos2unix /home/Pipeline/sampleList.txt
 
 #RUNNING SPADES--------------------------------------------------------------------
 echo "Starting SPAdes with ${threads} threads"
-for id in `cat /home/Pipeline/data/sampleList.txt`; do
+for id in `cat /home/Pipeline/sampleList.txt`; do
 
 	#CREATE OUTPUTFOLDERS
-	mkdir -p /home/Pipeline/data/${id}/04_SPAdes
-	mkdir -p /home/Pipeline/data/${id}/05_inputPathogenWatch
+	mkdir -p /home/Pipeline/${id}/04_SPAdes
+	mkdir -p /home/Pipeline/${id}/05_inputPathogenWatch
 
 	#CREATE temp folder-content-list
-	ls /home/Pipeline/data/${id}/02_Trimmomatic > /home/foldercontent.txt
+	ls /home/Pipeline/${id}/02_Trimmomatic > /home/foldercontent.txt
 	sed 's/_L001_R1_001_P.fastq.gz//g' /home/foldercontent.txt > /home/foldercontent2.txt
 	sed 's/_L001_R1_001_U.fastq.gz//g' /home/foldercontent2.txt > /home/foldercontent3.txt
 	sed 's/_L001_R2_001_P.fastq.gz//g' /home/foldercontent3.txt > /home/foldercontent4.txt
@@ -42,13 +42,13 @@ for id in `cat /home/Pipeline/data/sampleList.txt`; do
 	for i in `cat /home/foldercontent6.txt`; do
 		#START SPADES
 		echo -e "\nSTARTING ${i} \n";	
-		/SPAdes-3.13.1-Linux/bin/spades.py --pe1-1 /home/Pipeline/data/${id}/02_Trimmomatic/${id}_L001_R1_001_P.fastq.gz \
-		--pe1-2 /home/Pipeline/data/${id}/02_Trimmomatic/${id}_L001_R2_001_P.fastq.gz \
+		/SPAdes-3.13.1-Linux/bin/spades.py --pe1-1 /home/Pipeline/${id}/02_Trimmomatic/${id}_L001_R1_001_P.fastq.gz \
+		--pe1-2 /home/Pipeline/${id}/02_Trimmomatic/${id}_L001_R2_001_P.fastq.gz \
 		--tmp-dir /home/SPAdes/temp/ \
-		-o /home/Pipeline/data/${id}/04_SPAdes -t ${threads};
+		-o /home/Pipeline/${id}/04_SPAdes -t ${threads};
 		#RENAME AND MOVE RESULTS
-		cd /home/Pipeline/data/${id}/04_SPAdes
-		cp contigs.fasta /home/Pipeline/data/${id}/05_inputPathogenWatch/${id}.fasta
+		cd /home/Pipeline/${id}/04_SPAdes
+		cp contigs.fasta /home/Pipeline/${id}/05_inputPathogenWatch/${id}.fasta
 	done
 done
 

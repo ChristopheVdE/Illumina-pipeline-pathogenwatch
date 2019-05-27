@@ -13,7 +13,7 @@ run="RUN_"`date +%Y%m%d`
 
 # COPY SNAKEMAKE LOG---------------------------------------------------------------
 echo -e "\nCopying snakemake log, please wait"
-mkdir -p /home/Pipeline/data/Snakemake_logs/
-cp -vr /home/Snakemake/.snakemake/log/* /home/Pipeline/data/Snakemake_logs/ 
+mkdir -p /home/Pipeline/Snakemake_logs/
+cp -vr /home/Snakemake/.snakemake/log/* /home/Pipeline/Snakemake_logs/ 
 echo -e "Done\n"
 #----------------------------------------------------------------------------------

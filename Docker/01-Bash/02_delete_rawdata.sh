@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ###################################################################################
-#NAME SCRIPT: 01_move_rawdata.sh
+#NAME SCRIPT: 02_move_rawdata.sh
 #AUTHOR: Christophe Van den Eynde  
-#copying rawdata to the current analysis data folders
-#USAGE: ./01_move_rawdata.sh ${input} ${output}
+#deletes rawdata files in the main folder (rawdata/) if rawdata and results folder is the same (keeps the rawdata in rawdata/sample/00_rawdata)
+#USAGE: ./02_delete_rawdata.sh ${input} ${output}
 ###################################################################################
 
 #FILE PREPARATION------------------------------------------------------------------
@@ -13,10 +13,8 @@ dos2unix /home/rawdata/sampleList.txt
 #----------------------------------------------------------------------------------
 
 # copy the 00_Rawdata into the current analysis folder
-echo -e "\nMoving files, please wait"
+echo -e "\removing duplicate rawdata files, please wait"
 for id in `cat /home/rawdata/sampleList.txt`; do
-    mkdir -p /home/rawdata/${id}/00_Rawdata
-    cp -vr /home/rawdata/${id}*.fastq.gz /home/rawdata/${id}/00_Rawdata/ \
-    2>&1 | tee -a /home/rawdata/${id}/00_Rawdata/stdout.txt
+    rm /home/rawdata/${id}*.fastq.gz
 done    
 echo -e "Done\n"

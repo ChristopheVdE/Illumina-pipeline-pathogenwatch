@@ -38,20 +38,19 @@ print("Before submitting the locations, please check wheter upper and lower case
 if sys=="Windows":
     if HyperV=="False":
         print("Docker-toolbox for Windows detected:")
-        print("It's advised to have both the RAWDATA and the RESULTS folder on the C-drive before the analysis, otherwise there might be problems finding the location")
         print("To give Docker acces to more drives:")
         print("   1) Open Oracle Virtual Box")
         print("   2) Select the Docker Virtual machine, click on settings (the cogwheel) and then on 'Shared folders'")
         print("   3) Click on 'add shared folder', provide the path to the folder, name the folder and select 'automatic mounting'")
-        print("[WARNING] The paths of the newly added shared-folders might not work in this script (Untested)\n")
+        print("[WARNING] The paths of the newly added shared-folders might not work in this script (Untested)")
+        print("It's advised to have both the RAWDATA and the RESULTS folder on the C-drive before the analysis, otherwise there might be problems finding the location\n")
     else:
         print("Docker Desktop for Windows detected:")
-        print("It's advised to have both the RAWDATA and the RESULTS folder on the C-drive before the analysis, otherwise there might be problems finding the location")
         print("To give Docker acces to more drives:")
         print("   1) Right click on the Docker desktop icon in the taskbar and select 'Settings'")
         print("   2) Go to 'Shared Drives'")
         print("   3) Check to boxes for the drives you want docker to have acces to and press 'Apply'. Windows will ask for your password afther wich Docker will restart and the folders should be available")
-        print("[WARNING] Changing your Windows password can apparently break docker acces to the shared drives, just repeat this process and provide your new password to fix this\n")
+        print("[WARNING] Changing your Windows password can apparently break Docker's acces to the shared drives, just repeat the above steps and provide your new password to fix this")
 rawdata = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
 analysis = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
 #===========================================================================================================
@@ -186,34 +185,53 @@ loc.write("threads="+str(threads))
 loc.close()
 #===========================================================================================================
 
-# PREPARE FILESTRUCTURE FOR SNAKEMAKE=======================================================================
-# Pipeline step1: copy/ move files from raw data folder to 'Sample_id/00_Rawdata/' in the analysis-results folder
+# SNAKEMAKE PREPARATION=====================================================================================
+# snakemake docker command
+snake = 'docker run -it --rm \
+    --name snakemake \
+    --cpuset-cpus="0" \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "'+analysis_m+':/home/Pipeline/" \
+    christophevde/snakemake:v2.2_test \
+    /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
+#==========================================================================================================
+
+# COPY FILES===============================================================================================
+# Copy/ move files from raw data folder to 'Sample_id/00_Rawdata/' in the analysis-results folder
 print("Please wait while the rawdata is being copied to the current-analysis folder")
+
+# mount only 1 folder is rawdata and results folders are the same------------------------------------------
+# execute snakemake docker
+# delete the free-floating fastq.files in the rawdata/results folder (they have been copied to 00_Rawdata/)
+# this is the final step because otherwise snakemake would complain over missing files
+# if it was terminated mid analysis and needs to continue on a different time
 if rawdata == analysis:
-    cmd = 'docker run -it --rm \
+    move = 'docker run -it --rm \
         --name copy_rawdata \
         -v "'+rawdata_m+':/home/rawdata/" \
         christophevde/ubuntu_bash:v2.2_test \
         /home/Scripts/01_move_rawdata.sh'
+    os.system(move)
+    os.system(snake)
+    delete = 'docker run -it --rm \
+        --name copy_rawdata \
+        -v "'+rawdata_m+':/home/rawdata/" \
+        christophevde/ubuntu_bash:v2.2_test \
+        /home/Scripts/01_move_rawdata.sh'
+    os.system(delete)
+#-----------------------------------------------------------------------------------------------------------
+
+# mount both the rawdata and the results folder-------------------------------------------------------------
 else:
-    cmd = 'docker run -it --rm \
+    copy = 'docker run -it --rm \
         --name copy_rawdata \
         -v "'+rawdata_m+':/home/rawdata/" \
         -v "'+analysis_m+':/home/Pipeline/" \
         christophevde/ubuntu_bash:v2.2_test \
         /home/Scripts/01_copy_rawdata.sh'
-os.system(cmd)
-#===========================================================================================================
-
-# EXECUTE SNAKEMAKE DOCKER==================================================================================
-cmd = 'docker run -it --rm \
-    --name snakemake \
-    --cpuset-cpus="0" \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v "'+analysis_m+':/home/Pipeline/" \
-    christophevde/snakemake:v2.1_stable \
-    /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
-os.system(cmd)
+    os.system(copy)
+# execute snakemake docker
+    os.system(snake)
 #===========================================================================================================
 
 #TIMER END==================================================================================================
