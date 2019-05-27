@@ -38,7 +38,7 @@ rule all:
         expand("/home/Pipeline/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC/multiqc_report.html",id=ids),                       
         expand("/home/Pipeline/{id}/04_SPAdes/dataset.info",id=ids)                                             
     message:
-        "Analysis done, results can be found in {analysis_m}/data"
+        "Analysis done, results can be found in {analysis_m}"
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step1: copy/move files from raw data folder to 'Sample_id/00_Rawdata/' in the analysis-results folder
