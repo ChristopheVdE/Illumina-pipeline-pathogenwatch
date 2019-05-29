@@ -51,8 +51,8 @@ if sys=="Windows":
         print("   2) Go to 'Shared Drives'")
         print("   3) Check to boxes for the drives you want docker to have acces to and press 'Apply'. Windows will ask for your password afther wich Docker will restart and the folders should be available")
         print("[WARNING] Changing your Windows password can apparently break Docker's acces to the shared drives, just repeat the above steps and provide your new password to fix this")
-rawdata = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
-analysis = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
+Illumina = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
+Results = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
 #===========================================================================================================
 
 # fix the path if system is Windows-------------------------------------------------------------------------
@@ -60,44 +60,44 @@ if sys=="Windows":
     print("\nConverting Windows paths for use in Docker:")
     import string
     for i in list(string.ascii_lowercase+string.ascii_uppercase):
-        if rawdata.startswith(i+":/"):
-            rawdata_m = rawdata.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
-        elif rawdata.startswith(i+":\\"):
-            rawdata_m = rawdata.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-        if analysis.startswith(i+":/"):
-            analysis_m = analysis.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
-        elif analysis.startswith(i+":\\"):
-            analysis_m = analysis.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-    print(" - Raw-data location ({}) changed to: {}".format(rawdata,rawdata_m))
-    print(" - Results location ({}) changed to: {}".format(analysis,analysis_m))
+        if Illumina.startswith(i+":/"):
+            Illumina_m = Illumina.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
+        elif Illumina.startswith(i+":\\"):
+            Illumina_m = Illumina.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
+        if Results.startswith(i+":/"):
+            Results_m = Results.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
+        elif Results.startswith(i+":\\"):
+            Results_m = Results.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
+    print(" - Raw-data location ({}) changed to: {}".format(Illumina,Illumina_m))
+    print(" - Results location ({}) changed to: {}".format(Results,Results_m))
 # ----------------------------------------------------------------------------------------------------------
 
 # keeping paths as they are if system isn't Windows---------------------------------------------------------
 else:
-    rawdata_m = rawdata
-    analysis_m = analysis
+    Illumina_m = Illumina
+    Results_m = Results
     print("\nUNIX paths shouldn't require a conversion for use in Docker:")
-    print(" - Rawdata={}".format(rawdata))
-    print(" - Results location={}".format(analysis))
+    print(" - Rawdata={}".format(Illumina))
+    print(" - Results location={}".format(Results))
 print("-"*63)
 #-----------------------------------------------------------------------------------------------------------
 
 # create location/data--------------------------------------------------------------------------------------
-if not os.path.exists(analysis):
-    os.mkdir(analysis)
+if not os.path.exists(Results):
+    os.mkdir(Results)
 #-----------------------------------------------------------------------------------------------------------
 
 # CREATE SAMPLE LIST========================================================================================
 # read directory content------------------------------------------------------------------------------------
 ids =[]
-for sample in os.listdir(rawdata):
+for sample in os.listdir(Illumina):
     if ".fastq.gz" in sample:
         ids.append(sample.replace('_L001_R1_001.fastq.gz','').replace('_L001_R2_001.fastq.gz',''))
 ids = sorted(set(ids))
 #-----------------------------------------------------------------------------------------------------------
 
 # writhing samplelist.txt-----------------------------------------------------------------------------------
-file = open(analysis+"/sampleList.txt",mode="w")
+file = open(Results+"/sampleList.txt",mode="w")
 for i in ids:
     file.write(i+"\n")
 file.close()
@@ -176,11 +176,11 @@ print("-"*63+"\n")
 #===========================================================================================================
 
 # WRITE ALL HOST INFO TO FILE===============================================================================
-loc = open(analysis+"/environment.txt", mode="w")
-loc.write("rawdata="+rawdata+"\n")
-loc.write("rawdata_m="+rawdata_m+"\n")
-loc.write("analysis="+analysis+"\n")
-loc.write("analysis_m="+analysis_m+"\n")
+loc = open(Results+"/environment.txt", mode="w")
+loc.write("Illumina="+Illumina+"\n")
+loc.write("Illumina_m="+Illumina_m+"\n")
+loc.write("Results="+Results+"\n")
+loc.write("Results_m="+Results_m+"\n")
 loc.write("threads="+str(threads))
 loc.close()
 #===========================================================================================================
@@ -191,8 +191,8 @@ snake = 'docker run -it --rm \
     --name snakemake \
     --cpuset-cpus="0" \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v "'+analysis_m+':/home/Pipeline/" \
-    christophevde/snakemake:v2.2_stable \
+    -v "'+Results_m+':/home/Pipeline/" \
+    christophevde/snakemake:v2.3_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
 #==========================================================================================================
 
@@ -205,17 +205,17 @@ print("Please wait while the rawdata is being copied to the current-analysis fol
 # delete the free-floating fastq.files in the rawdata/results folder (they have been copied to 00_Rawdata/)
 # this is the final step because otherwise snakemake would complain over missing files
 # if it was terminated mid analysis and needs to continue on a different time
-if rawdata == analysis:
+if Illumina == Results:
     move = 'docker run -it --rm \
         --name copy_rawdata \
-        -v "'+rawdata_m+':/home/rawdata/" \
+        -v "'+Illumina_m+':/home/rawdata/" \
         christophevde/ubuntu_bash:v2.2_stable \
         /home/Scripts/01_move_rawdata.sh'
     os.system(move)
     os.system(snake)
     delete = 'docker run -it --rm \
         --name copy_rawdata \
-        -v "'+rawdata_m+':/home/rawdata/" \
+        -v "'+Illumina_m+':/home/rawdata/" \
         christophevde/ubuntu_bash:v2.2_stable \
         /home/Scripts/02_delete_rawdata.sh'
     os.system(delete)
@@ -225,8 +225,8 @@ if rawdata == analysis:
 else:
     copy = 'docker run -it --rm \
         --name copy_rawdata \
-        -v "'+rawdata_m+':/home/rawdata/" \
-        -v "'+analysis_m+':/home/Pipeline/" \
+        -v "'+Illumina_m+':/home/rawdata/" \
+        -v "'+Results_m+':/home/Pipeline/" \
         christophevde/ubuntu_bash:v2.2_stable \
         /home/Scripts/01_copy_rawdata.sh'
     os.system(copy)
