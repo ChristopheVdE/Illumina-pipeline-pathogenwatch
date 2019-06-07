@@ -13,11 +13,11 @@ start = datetime.datetime.now()
 # GET LOCATIONS=============================================================================================
 #find system-type-------------------------------------------------------------------------------------------
 import platform
-system=platform.platform()
+system=platform.system()
 import subprocess
 
 if "Windows" in system:
-    sys="Windows"
+    sys = "Windows"
     print("\nWindows based system detected ({})\n".format(system))
     # check if HyperV is enabled (indication of docker Version, used to give specific tips on preformance increase)
     HV = subprocess.Popen('powershell.exe get-service | findstr vmcompute', shell=True, stdout=subprocess.PIPE) 
@@ -25,9 +25,12 @@ if "Windows" in system:
         if "Running" in line.decode("utf-8"):
             HyperV="True" 
         else: 
-            HyperV="False" 
+            HyperV="False"
+elif "Darwin" in system:
+    sys = "MacOS"
+    print("\nMacOS based system detected ({})\n".format(system))
 else:
-    sys="UNIX"
+    sys = "UNIX"
     print("\nUNIX based system detected ({})\n".format(system))
 #-----------------------------------------------------------------------------------------------------------
 
@@ -121,6 +124,8 @@ for line in docker.stdout:
 # TOTAL THREADS OF HOST-------------------------------------------------------------------------------------
 if sys == "Windows":
     host = subprocess.Popen('WMIC CPU Get NumberOfLogicalProcessors', shell=True, stdout=subprocess.PIPE)
+elif sys == "MacOS":
+    host = subprocess.Popen('sysctl -n hw.ncpu', shell=True, stdout=subprocess.PIPE)
 else:
     host = subprocess.Popen('nproc --all', shell=True, stdout=subprocess.PIPE)
 
