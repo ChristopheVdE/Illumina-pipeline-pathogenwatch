@@ -20,7 +20,7 @@ threads=${threads#"threads="}
 #-----------------------------------------------------------------------------------
 
 #Fix possible EOL errors in sampleList.txt
-dos2unix /home/Pipeline/sampleList.txt
+dos2unix -q /home/Pipeline/sampleList.txt
 
 #RUNNING SPADES--------------------------------------------------------------------
 echo "Starting SPAdes with ${threads} threads"
