@@ -13,8 +13,7 @@
 #-----------------------------------------------------------------------------------------------------------
 
 #VARIABLES--------------------------------------------------------------------------------------------------
-threads=`cat /home/Pipeline/environment.txt | grep "threads="`
-threads=${threads#"threads="}
+threads=${1:-"1"}
 # inputfolder = /home/Pipeline/data/${id}/02_Trimmomatic
 # outputFolder = /home/Pipeline/data/${id}/03_QC-Trimmomatic_Paired/QC_fastqc
 #-----------------------------------------------------------------------------------------------------------

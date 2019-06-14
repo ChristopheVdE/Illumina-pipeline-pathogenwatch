@@ -112,37 +112,53 @@ print("Done")
 
 #GET INPUT==================================================================================================
 options = {}
-if sys == "Windows":
-    tips = input("\nDo you want to display tips when appropriate? (y/n): ").lower()
-else:
-    tips = 'n'
+#TEST FOR COMMAND LINE ARGUMENTS----------------------------------------------------------------------------
+try:
+    options["Illumina"] = sys.argv[1]
+    options["Results"] = sys.argv[2]
+    try:
+        options["Threads"] = sys.argv[3]
+    except:
+        print("Threads not specified, using suggested amount")
+    try:
+        options["Adapters"] = sys.argv[4]
+    except:
+        print("Adaptors not specified, using build in adaptor file for trimming")
 #LOCATIONS--------------------------------------------------------------------------------------------------
-print("\nLOCATION INFO"+"-"*50)
-if tips == 'y':
-    drive_acces(sys, HyperV)
-print("\nBefore submitting the locations, please check wheter upper and lower case letters are correct")
-options["Illumina"] = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
-options["Results"] = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
-options["Adapters"] = input("\nInput the full path/location of the multifasta containing the adapter-sequences to trim:\n")
-options["Scripts"] = os.path.dirname(os.path.realpath(__file__)) + "/Docker"
-
+except:
+    if sys == "Windows":
+        tips = input("\nDo you want to display tips when appropriate? (y/n): ").lower()
+    else:
+        tips = 'n'
+    print("\nLOCATION INFO"+"-"*50)
+    if tips == 'y':
+        drive_acces(sys, HyperV)
+    print("\nBefore submitting the locations, please check wheter upper and lower case letters are correct")
+    options["Illumina"] = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
+    options["Results"] = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
+    options["Adapters"] = input("\nInput the full path/location of the multifasta containing the adapter-sequences to trim. \
+        \n Press ENTER to use the build in adapter file for trimming.")
+    options["Scripts"] = os.path.dirname(os.path.realpath(__file__)) + "/Docker"
+#CHECK FOR ADAPTER INPUT, USE DEFAULT IF NOT PROVIDED--------------------------------------------------------
+    if options["Adapters"] == '':
+        options["Adapters"] = options["Scripts"]+'/04-Trimmomatic/NexteraPE-PE.fa'
 #THREADS-----------------------------------------------------------------------------------------------------
 # give advanced users the option to overrule the automatic thread detection and specify the ammount themself
 # basic users can just press ENTER to accept the automatically sugested ammount of threads
-print("\nANALYSIS OPTIONS"+"-"*47)
-if tips =='y':
-    docker_recources(sys, HyperV)
-print("\nTotal threads on host: {}".format(h_threads))
-print("Max threads in Docker: {}".format(d_threads))
-print("Suggest ammount of threads to use in the analysis: {}".format(s_threads))
-options["Threads"] = input("\nInput the ammount of threads to use for the analysis below.\
-\nIf you want to use the suggested ammount, just press ENTER (or type in the suggested number)\n")
-if options["Threads"] =='':
-    options["Threads"] = s_threads
-    print("\nChosen to use the suggested ammount of threads. Reserved {} threads for Docker".format(options["Threads"]))
-else:
-    print("\nManually specified the ammount of threads. Reserved {} threads for Docker".format(options["Threads"]))
-print("-"*63+"\n")
+    print("\nANALYSIS OPTIONS"+"-"*47)
+    if tips =='y':
+        docker_recources(sys, HyperV)
+    print("\nTotal threads on host: {}".format(h_threads))
+    print("Max threads in Docker: {}".format(d_threads))
+    print("Suggest ammount of threads to use in the analysis: {}".format(s_threads))
+    options["Threads"] = input("\nInput the ammount of threads to use for the analysis below.\
+    \nIf you want to use the suggested ammount, just press ENTER (or type in the suggested number)\n")
+    if options["Threads"] =='':
+        options["Threads"] = s_threads
+        print("\nChosen to use the suggested ammount of threads. Reserved {} threads for Docker".format(options["Threads"]))
+    else:
+        print("\nManually specified the ammount of threads. Reserved {} threads for Docker".format(options["Threads"]))
+    print("-"*63+"\n")
 #===========================================================================================================
 
 #CREATE LOCATION/ DATA======================================================================================

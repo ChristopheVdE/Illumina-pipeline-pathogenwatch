@@ -11,12 +11,11 @@
 #VARIABLES--------------------------------------------------------------------------------------------------
 # inputFolder = /home/Pipeline/${id}/00_Rawdata
 # outputFolder = /home/Pipeline/${id}/02_Trimmomatic
-threads=`cat /home/Pipeline/environment.txt | grep "threads="`
-threads=${threads#"threads="}
+threads=${1:-"1"}
+ADAPTERFILE="/home/adapters/${2}";
 #-----------------------------------------------------------------------------------------------------------
 
 #TRIMMOMATIC PRE-START--------------------------------------------------------------------------------------
-ADAPTERFILE='/home/adapters/NexteraPE-PE.fa';
 #Fix possible EOL errors in sampleList.txt
 dos2unix -q /home/Pipeline/sampleList.txt
 #-----------------------------------------------------------------------------------------------------------
