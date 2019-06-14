@@ -15,6 +15,7 @@ import platform
 import subprocess
 import os
 import string
+from pathlib import Path
 #===========================================================================================================
 
 #FUNCTIONS: TIPS============================================================================================
@@ -248,7 +249,7 @@ dos2unix = 'docker run -it --rm \
     --cpuset-cpus="0" \
     -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/" \
     christophevde/ubuntu_bash:v2.2_stable \
-    /bin/bash -c "dos2unix /home/Scripts/copy_log.sh && /home/Scripts/copy_log.sh"'
+    /bin/bash -c "dos2unix /home/Scripts/copy_log.sh"'
 os.system(dos2unix)
 # Execute snakemake
 snake = 'docker run -it --rm \
@@ -264,14 +265,24 @@ os.system(snake)
 # Delete the fastq.files in the original rawdata/ folder (they have been copied to 00_Rawdata/).
 # This is the final step because otherwise snakemake would complain over missing files if it was terminated 
 # mid analysis and needs to continue on a different time
-delete = 'docker run -it --rm \
-    --name copy_rawdata \
+delete_raw = 'docker run -it --rm \
+    --name delete_rawdata \
     -v "'+options["Illumina_m"]+':/home/rawdata/" \
-    -v "'+options["Scripts_m"]+'/01-Bash:/home/Scripts/" \
+    -v "'+options["Scripts_m"]+':/home/Scripts/" \
     christophevde/ubuntu_bash:v2.2_stable \
-    /bin/bash -c "dos2unix /home/Scripts/02_delete_rawdata.sh \
-    && /home/Scripts/02_delete_rawdata.sh"'
-os.system(delete)
+    /bin/bash -c "dos2unix /home/Scripts/01-Bash/02_delete_rawdata.sh \
+    && /home/Scripts/01-Bash/02_delete_rawdata.sh"'
+for sample in ids:
+    my_file = Path(options["Results"]+'/'+sample+'/05_inputPathogenWatch/'+sample+'.fasta')
+    if not my_file.is_file():
+        os.system(delete_raw)
+#REMOVE .SNAKEMAKE------------------------------------------------------------------------------------------
+delete_snake = 'docker run -it --rm \
+    --name delete_rawdata \
+    -v "'+options["Scripts_m"]+':/home/Scripts/" \
+    christophevde/ubuntu_bash:v2.2_stable \
+    /bin/bash -c "rm -R /home/Scripts/00-Snakemake/.Snakemake"'
+os.system(delete_snake)
 #===========================================================================================================
 
 #TIMER END==================================================================================================
