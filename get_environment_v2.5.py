@@ -16,12 +16,13 @@ import subprocess
 import os
 from pathlib import Path
 import string
+import sys
 #===========================================================================================================
 
 #FUNCTIONS: TIPS============================================================================================
 #TIPS TO GIVE DOCKER ACCES TO FOLDERS/ DRIVES---------------------------------------------------------------
-def drive_acces(sys, HyperV):
-    if sys=="Windows":
+def drive_acces(system, HyperV):
+    if system=="Windows":
         if HyperV=="False":
             print("Docker-toolbox for Windows detected:")
             print("To give Docker acces to more drives:")
@@ -38,8 +39,8 @@ def drive_acces(sys, HyperV):
             print("   3) Check to boxes for the drives you want docker to have acces to and press 'Apply'. Windows will ask for your password afther wich Docker will restart and the folders should be available")
             print("[WARNING] Changing your Windows password can apparently break Docker's acces to the shared drives, just repeat the above steps and provide your new password to fix this")
 #TIPS TO MANAGE DOCKER RECOURCES----------------------------------------------------------------------------
-def docker_recources(sys, HyperV):
-    if sys=="Windows":
+def docker_recources(system, HyperV):
+    if system=="Windows":
         print("\nTIP to increase performance (make more threads available to docker)")
         if HyperV=="True":
             print("  1) Open the settings menu of 'Docker Desktop'")
@@ -60,7 +61,7 @@ def docker_recources(sys, HyperV):
 print("Please wait while the Script fetches some system info.")
 system=platform.system()
 if "Windows" in system:
-    sys = "Windows"
+    system = "Windows"
     print("\nWindows based system detected ({})\n".format(system))
     # check if HyperV is enabled (indication of docker Version, used to give specific tips on preformance increase)
     HV = subprocess.Popen('powershell.exe get-service | findstr vmcompute', shell=True, stdout=subprocess.PIPE) 
@@ -70,10 +71,10 @@ if "Windows" in system:
         else: 
             HyperV="False"
 elif "Darwin" in system:
-    sys = "MacOS"
+    system = "MacOS"
     print("\nMacOS based system detected ({})\n".format(system))
 else:
-    sys = "UNIX"
+    system = "UNIX"
     print("\nUNIX based system detected ({})\n".format(system))
 #===========================================================================================================
 
@@ -85,9 +86,9 @@ else:
     # The number of threads available to docker should be the same as the total number of threads available on the HOST
     # --> extra limitation is needed in order to not slow down the PC to much (reserve CPU for host)
 # TOTAL THREADS OF HOST-------------------------------------------------------------------------------------
-if sys == "Windows":
+if system == "Windows":
     host = subprocess.Popen('WMIC CPU Get NumberOfLogicalProcessors', shell=True, stdout=subprocess.PIPE)
-elif sys == "MacOS":
+elif system == "MacOS":
     host = subprocess.Popen('sysctl -n hw.ncpu', shell=True, stdout=subprocess.PIPE)
 else:
     host = subprocess.Popen('nproc --all', shell=True, stdout=subprocess.PIPE)
@@ -101,7 +102,7 @@ docker = subprocess.Popen('docker run -it --rm --name ubuntu_bash christophevde/
 for line in docker.stdout:
     d_threads = int(line.decode("UTF-8"))
 # SUGESTED THREADS FOR ANALYSIS CALCULATION-----------------------------------------------------------------
-if sys=="UNIX":
+if system=="UNIX":
     if h_threads < 5:
         s_threads = h_threads//2
     else:
@@ -115,25 +116,28 @@ print("Done")
 options = {}
 #TEST FOR COMMAND LINE ARGUMENTS----------------------------------------------------------------------------
 try:
+    options["Scripts"] = os.path.dirname(os.path.realpath(__file__)) + "/Docker"
     options["Illumina"] = sys.argv[1]
     options["Results"] = sys.argv[2]
     try:
         options["Threads"] = sys.argv[3]
     except:
         print("Threads not specified, using suggested amount")
+        options["Threads"] = str(s_threads)
     try:
         options["Adapters"] = sys.argv[4]
     except:
         print("Adaptors not specified, using build in adaptor file for trimming")
+        options["Adaptors"] = options["Scripts"]+'/04-Trimmomatic/NexteraPE-PE.fa'
 #LOCATIONS--------------------------------------------------------------------------------------------------
 except:
-    if sys == "Windows":
+    if system == "Windows":
         tips = input("\nDo you want to display tips when appropriate? (y/n): ").lower()
     else:
         tips = 'n'
     print("\nLOCATION INFO"+"-"*50)
     if tips == 'y':
-        drive_acces(sys, HyperV)
+        drive_acces(system, HyperV)
     print("\nBefore submitting the locations, please check wheter upper and lower case letters are correct")
     options["Illumina"] = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
     options["Results"] = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
@@ -148,7 +152,7 @@ except:
 # basic users can just press ENTER to accept the automatically sugested ammount of threads
     print("\nANALYSIS OPTIONS"+"-"*47)
     if tips =='y':
-        docker_recources(sys, HyperV)
+        docker_recources(system, HyperV)
     print("\nTotal threads on host: {}".format(h_threads))
     print("Max threads in Docker: {}".format(d_threads))
     print("Suggest ammount of threads to use in the analysis: {}".format(s_threads))
