@@ -13,11 +13,14 @@ for line in env.readlines():
     # GET LOCATIONS-----------------------------------------------------------------------------------------
     if "Results_m=" in line:
         Results_m = line.replace("Results_m=",'').replace('\n','')
+    elif "Illumina_m" in line:
+        Illumina_m = line.replace("Illumina_m=",'').replace('\n','')
     elif "Scripts_m=" in line:
         Scripts_m = line.replace("Scripts_m=",'').replace('\n','')
-    elif "Adaptor_m=" in line:
-        Adaptor_m = line.replace("Adaptor_m=",'').replace('\n','')
-        Adaptor = os.path.basename(Adaptor_m)
+    elif "Adaptors_m=" in line:
+        Adaptors_m = line.replace("Adaptors_m=",'').replace('\n','')
+        Adaptors = os.path.basename(Adaptors_m)
+        Adaptors_m = Adaptors_m.replace(Adaptors,'')
     elif "Threads=" in line:
         Threads = line.replace("Threads=",'').replace('\n','')
 env.close()
@@ -106,11 +109,11 @@ rule Trimming:
         'docker run -it --rm \
         --name trimmomatic \
         -v "{Results_m}:/home/Pipeline/" \
-        -v "{Adaptor_m}:/home/adapters/" \
+        -v "{Adaptors_m}:/home/adapters/" \
         -v "{Scripts_m}/04-Trimmomatic:/home/Scripts/" \
         christophevde/trimmomatic:v2.2_stable \
         /bin/bash -c "dos2unix /home/Scripts/02_runTrimmomatic.sh \
-        && /home/Scripts/02_runTrimmomatic.sh {Threads} {Adaptor}"'
+        && /home/Scripts/02_runTrimmomatic.sh {Threads} {Adaptors}"'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step5: FastQC trimmed data (paired reads only)

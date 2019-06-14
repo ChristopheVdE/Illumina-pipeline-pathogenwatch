@@ -14,8 +14,8 @@ start = datetime.datetime.now()
 import platform
 import subprocess
 import os
-import string
 from pathlib import Path
+import string
 #===========================================================================================================
 
 #FUNCTIONS: TIPS============================================================================================
@@ -137,12 +137,12 @@ except:
     print("\nBefore submitting the locations, please check wheter upper and lower case letters are correct")
     options["Illumina"] = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
     options["Results"] = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
-    options["Adapters"] = input("\nInput the full path/location of the multifasta containing the adapter-sequences to trim. \
+    options["Adaptors"] = input("\nInput the full path/location of the multifasta containing the adapter-sequences to trim. \
         \n Press ENTER to use the build in adapter file for trimming.")
     options["Scripts"] = os.path.dirname(os.path.realpath(__file__)) + "/Docker"
 #CHECK FOR ADAPTER INPUT, USE DEFAULT IF NOT PROVIDED--------------------------------------------------------
-    if options["Adapters"] == '':
-        options["Adapters"] = options["Scripts"]+'/04-Trimmomatic/NexteraPE-PE.fa'
+    if options["Adaptors"] == '':
+        options["Adaptors"] = options["Scripts"]+'/04-Trimmomatic/NexteraPE-PE.fa'
 #THREADS-----------------------------------------------------------------------------------------------------
 # give advanced users the option to overrule the automatic thread detection and specify the ammount themself
 # basic users can just press ENTER to accept the automatically sugested ammount of threads
@@ -243,46 +243,33 @@ else:
     os.system(copy)
 print("Done\n")
 #EXECUTE SNAKEMAKE DOCKER CONTAINER-------------------------------------------------------------------------
-# Make shure that the end of lines are correct for Linux before mounting the Snakemake-Scripts folder as read only
-dos2unix = 'docker run -it --rm \
-    --name dos2unix \
-    --cpuset-cpus="0" \
-    -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/" \
-    christophevde/ubuntu_bash:v2.2_stable \
-    /bin/bash -c "dos2unix /home/Scripts/copy_log.sh"'
-os.system(dos2unix)
-# Execute snakemake
+# Mounting the snakefile as a file (needs to have a pre-existing file in container to override), will prevent
+# the .snakemake folder to be mounted back onto the host by the container reducing useless files
 snake = 'docker run -it --rm \
     --name snakemake \
     --cpuset-cpus="0" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "'+options["Results_m"]+':/home/Pipeline/" \
+    -v "'+options["Scripts_m"]+'/00-Snakemake/Snakefile:/home/Snakemake/Snakefile" \
     -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/" \
     christophevde/snakemake:v2.3_stable \
-    /bin/bash -c "cd /home/Scripts/ && snakemake; /home/Scripts/copy_log.sh"'
+    /bin/bash -c "cd /home/Snakemake/ && snakemake; \
+    dos2unix /home/Scripts/copy_log.sh && /home/Scripts/copy_log.sh"'
 os.system(snake)
 #REMOVE DUPLICATE RAWDATA FILES-----------------------------------------------------------------------------
 # Delete the fastq.files in the original rawdata/ folder (they have been copied to 00_Rawdata/).
 # This is the final step because otherwise snakemake would complain over missing files if it was terminated 
 # mid analysis and needs to continue on a different time
-delete_raw = 'docker run -it --rm \
-    --name delete_rawdata \
-    -v "'+options["Illumina_m"]+':/home/rawdata/" \
-    -v "'+options["Scripts_m"]+':/home/Scripts/" \
-    christophevde/ubuntu_bash:v2.2_stable \
-    /bin/bash -c "dos2unix /home/Scripts/01-Bash/02_delete_rawdata.sh \
-    && /home/Scripts/01-Bash/02_delete_rawdata.sh"'
 for sample in ids:
     my_file = Path(options["Results"]+'/'+sample+'/05_inputPathogenWatch/'+sample+'.fasta')
-    if not my_file.is_file():
+    if my_file.is_file():
+        print("deleting duplicate rawdata for sample: "+sample)
+        delete_raw = 'docker run -it --rm \
+            --name delete_rawdata \
+            -v "'+options["Illumina_m"]+':/home/rawdata/" \
+            christophevde/ubuntu_bash:v2.2_stable \
+            /bin/bash -c "rm /home/rawdata/"'+sample+"*.fastq.gz"
         os.system(delete_raw)
-#REMOVE .SNAKEMAKE------------------------------------------------------------------------------------------
-delete_snake = 'docker run -it --rm \
-    --name delete_rawdata \
-    -v "'+options["Scripts_m"]+':/home/Scripts/" \
-    christophevde/ubuntu_bash:v2.2_stable \
-    /bin/bash -c "rm -R /home/Scripts/00-Snakemake/.Snakemake"'
-os.system(delete_snake)
 #===========================================================================================================
 
 #TIMER END==================================================================================================
