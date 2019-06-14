@@ -154,7 +154,7 @@ except:
     options["Threads"] = input("\nInput the ammount of threads to use for the analysis below.\
     \nIf you want to use the suggested ammount, just press ENTER (or type in the suggested number)\n")
     if options["Threads"] =='':
-        options["Threads"] = s_threads
+        options["Threads"] = str(s_threads)
         print("\nChosen to use the suggested ammount of threads. Reserved {} threads for Docker".format(options["Threads"]))
     else:
         print("\nManually specified the ammount of threads. Reserved {} threads for Docker".format(options["Threads"]))
@@ -169,21 +169,26 @@ for i in folders:
 #===========================================================================================================
 
 #CONVERT MOUNT_PATHS (INPUT) IF REQUIRED====================================================================  
+options_copy = options
+options = {}
+not_convert = ["Threads",]
 if system=="Windows":
     print("\nConverting Windows paths for use in Docker:")
-    for key, value in options.items():
+    for key, value in options_copy.items():
+        options[key] = value
         for i in list(string.ascii_lowercase+string.ascii_uppercase):
-            options[key] = value
             if value.startswith(i+":/"):
                 options[key+"_m"] = value.replace(i+":/","/"+i.lower()+"//").replace('\\','/')
             elif value.startswith(i+":\\"):
                 options[key+"_m"] = value.replace(i+":\\","/"+i.lower()+"//").replace('\\','/')
-        print(" - "+ key +" location ({}) changed to: {}".format(str(options[key][value]),str(options[key+"_m"][value])))
+        if not key in not_convert:  
+            print(" - "+ key +" location ({}) changed to: {}".format(str(options[key]),str(options[key+"_m"])))
 else:
     print("\nUNIX paths shouldn't require a conversion for use in Docker:")
-    for key, value in options.items():
-        options[key+"_m"] = value
-        print(" - "+ key +" location ({}) changed to: {}".format(str(options[key][value]),str(options[key+"_m"][value])))
+    for key, value in options_copy.items():
+        if not key in not_convert:
+            options[key+"_m"] = value
+            print(" - "+ key +" location ({}) changed to: {}".format(str(options[key]),str(options[key+"_m"])))
 #===========================================================================================================
 
 # CREATE SAMPLE LIST========================================================================================
@@ -219,7 +224,7 @@ if options["Illumina"] == options["Results"]:
     move = 'docker run -it --rm \
         --name copy_rawdata \
         -v "'+options["Illumina_m"]+':/home/rawdata/" \
-        -v "'+options["Scripts_m"]+':/home/Scripts/" \
+        -v "'+options["Scripts_m"]+'/01-Bash:/home/Scripts/" \
         christophevde/ubuntu_bash:v2.2_stable \
         /bin/bash -c "dos2unix /home/Scripts/01_move_rawdata.sh \
         && /home/Scripts/01_move_rawdata.sh"'
@@ -230,7 +235,7 @@ else:
         --name copy_rawdata \
         -v "'+options["Illumina_m"]+':/home/rawdata/" \
         -v "'+options["Results_m"]+':/home/Pipeline/" \
-        -v "'+options["Scripts_m"]+':/home/Scripts/" \
+        -v "'+options["Scripts_m"]+'/01-Bash:/home/Scripts/" \
         christophevde/ubuntu_bash:v2.2_stable \
         /bin/bash -c "dos2unix /home/Scripts/01_copy_rawdata.sh \
         && /home/Scripts/01_copy_rawdata.sh"'
@@ -242,8 +247,8 @@ dos2unix = 'docker run -it --rm \
     --name dos2unix \
     --cpuset-cpus="0" \
     -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/" \
-    christophevde/ubuntu_bash:2.2_stable \
-    /bin/bash -c "dos2unix /home/Scripts/copy_log.sh"'
+    christophevde/ubuntu_bash:v2.2_stable \
+    /bin/bash -c "dos2unix /home/Scripts/copy_log.sh && /home/Scripts/copy_log.sh"'
 os.system(dos2unix)
 # Execute snakemake
 snake = 'docker run -it --rm \
@@ -251,9 +256,9 @@ snake = 'docker run -it --rm \
     --cpuset-cpus="0" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "'+options["Results_m"]+':/home/Pipeline/" \
-    -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/:ro" \
+    -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/" \
     christophevde/snakemake:v2.3_stable \
-    /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
+    /bin/bash -c "cd /home/Scripts/ && snakemake; /home/Scripts/copy_log.sh"'
 os.system(snake)
 #REMOVE DUPLICATE RAWDATA FILES-----------------------------------------------------------------------------
 # Delete the fastq.files in the original rawdata/ folder (they have been copied to 00_Rawdata/).
@@ -262,7 +267,7 @@ os.system(snake)
 delete = 'docker run -it --rm \
     --name copy_rawdata \
     -v "'+options["Illumina_m"]+':/home/rawdata/" \
-    -v "'+options["Scripts_m"]+':/home/Scripts/" \
+    -v "'+options["Scripts_m"]+'/01-Bash:/home/Scripts/" \
     christophevde/ubuntu_bash:v2.2_stable \
     /bin/bash -c "dos2unix /home/Scripts/02_delete_rawdata.sh \
     && /home/Scripts/02_delete_rawdata.sh"'
