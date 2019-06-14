@@ -6,6 +6,7 @@
 ############################################################################################################
 
 #SNAKEMAKE RUN PREPARATION==================================================================================
+import os
 # GET INFO FROM HOST----------------------------------------------------------------------------------------
 env = open("/home/Pipeline/environment.txt","r")
 for line in env.readlines():
@@ -16,6 +17,7 @@ for line in env.readlines():
         Scripts_m = line.replace("Scripts_m=",'').replace('\n','')
     elif "Adaptor_m=" in line:
         Adaptor_m = line.replace("Adaptor_m=",'').replace('\n','')
+        Adaptor = os.path.basename(Adaptor_m)
     elif "Threads=" in line:
         Threads = line.replace("Threads=",'').replace('\n','')
 env.close()
