@@ -20,8 +20,6 @@ import string
 #FUNCTIONS: TIPS============================================================================================
 #TIPS TO GIVE DOCKER ACCES TO FOLDERS/ DRIVES---------------------------------------------------------------
 def drive_acces(sys, HyperV):
-    print("\nLOCATION INFO"+"-"*50)
-    print("Before submitting the locations, please check wheter upper and lower case letters are correct")
     if sys=="Windows":
         if HyperV=="False":
             print("Docker-toolbox for Windows detected:")
@@ -58,6 +56,7 @@ def docker_recources(sys, HyperV):
 #===========================================================================================================
 
 #FETCH OS-TYPE==============================================================================================
+print("Please wait while the Script fetches some system info.")
 system=platform.system()
 if "Windows" in system:
     sys = "Windows"
@@ -108,15 +107,20 @@ if sys=="UNIX":
         s_threads = h_threads//4*3
 else:
     s_threads = d_threads
+print("Done")
 #===========================================================================================================
 
 #GET INPUT==================================================================================================
 options = {}
-tips = input("Do you want to display tips when appropriate? (y/n): ").lower()
+if sys == "Windows":
+    tips = input("\nDo you want to display tips when appropriate? (y/n): ").lower()
+else:
+    tips = 'n'
 #LOCATIONS--------------------------------------------------------------------------------------------------
 print("\nLOCATION INFO"+"-"*50)
 if tips == 'y':
     drive_acces(sys, HyperV)
+print("\nBefore submitting the locations, please check wheter upper and lower case letters are correct")
 options["Illumina"] = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
 options["Results"] = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
 options["Adapters"] = input("\nInput the full path/location of the multifasta containing the adapter-sequences to trim:\n")
@@ -128,7 +132,7 @@ options["Scripts"] = os.path.dirname(os.path.realpath(__file__)) + "/Docker"
 print("\nANALYSIS OPTIONS"+"-"*47)
 if tips =='y':
     docker_recources(sys, HyperV)
-print("Total threads on host: {}".format(h_threads))
+print("\nTotal threads on host: {}".format(h_threads))
 print("Max threads in Docker: {}".format(d_threads))
 print("Suggest ammount of threads to use in the analysis: {}".format(s_threads))
 options["Threads"] = input("\nInput the ammount of threads to use for the analysis below.\
@@ -190,59 +194,68 @@ for key, value in options.items():
 loc.close()
 #===========================================================================================================
 
-# SNAKEMAKE PREPARATION=====================================================================================
-# snakemake docker command
+#EXECUTE PIPELINE===========================================================================================
+#COPY/ MOVE RAWDATA TO RESULTS/00_RAWDATA-------------------------------------------------------------------
+# Copy/ move files from raw data folder to 'Sample_id/00_Rawdata/' in the analysis-results folder
+print("Please wait while the rawdata is being copied to the current-analysis folder")
+if options["Illumina"] == options["Results"]:
+    # mount only the rawdata folder if rawdata and results folders are the same
+    move = 'docker run -it --rm \
+        --name copy_rawdata \
+        -v "'+options["Illumina_m"]+':/home/rawdata/" \
+        -v "'+options["Scripts_m"]+':/home/Scripts/" \
+        christophevde/ubuntu_bash:v2.2_stable \
+        /bin/bash -c "dos2unix /home/Scripts/01_move_rawdata.sh \
+        && /home/Scripts/01_move_rawdata.sh"'
+    os.system(move)
+else:
+    # mount both the rawdata and the results folder
+    copy = 'docker run -it --rm \
+        --name copy_rawdata \
+        -v "'+options["Illumina_m"]+':/home/rawdata/" \
+        -v "'+options["Results_m"]+':/home/Pipeline/" \
+        -v "'+options["Scripts_m"]+':/home/Scripts/" \
+        christophevde/ubuntu_bash:v2.2_stable \
+        /bin/bash -c "dos2unix /home/Scripts/01_copy_rawdata.sh \
+        && /home/Scripts/01_copy_rawdata.sh"'
+    os.system(copy)
+print("Done\n")
+#EXECUTE SNAKEMAKE DOCKER CONTAINER-------------------------------------------------------------------------
+# Make shure that the end of lines are correct for Linux before mounting the Snakemake-Scripts folder as read only
+dos2unix = 'docker run -it --rm \
+    --name dos2unix \
+    --cpuset-cpus="0" \
+    -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/" \
+    christophevde/ubuntu_bash:2.2_stable \
+    /bin/bash -c "dos2unix /home/Scripts/copy_log.sh"'
+os.system(dos2unix)
+# Execute snakemake
 snake = 'docker run -it --rm \
     --name snakemake \
     --cpuset-cpus="0" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "'+options["Results_m"]+':/home/Pipeline/" \
+    -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/:ro" \
     christophevde/snakemake:v2.3_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; /home/Scripts/copy_log.sh"'
-#==========================================================================================================
-
-# COPY FILES===============================================================================================
-# Copy/ move files from raw data folder to 'Sample_id/00_Rawdata/' in the analysis-results folder
-print("Please wait while the rawdata is being copied to the current-analysis folder")
-
-# mount only 1 folder is rawdata and results folders are the same------------------------------------------
-# execute snakemake docker
-# delete the free-floating fastq.files in the rawdata/results folder (they have been copied to 00_Rawdata/)
-# this is the final step because otherwise snakemake would complain over missing files
-# if it was terminated mid analysis and needs to continue on a different time
-if options["Illumina"] == options["Results"]:
-    move = 'docker run -it --rm \
-        --name copy_rawdata \
-        -v "'+options["Illumina_m"]+':/home/rawdata/" \
-        christophevde/ubuntu_bash:v2.2_stable \
-        /home/Scripts/01_move_rawdata.sh'
-    os.system(move)
-    os.system(snake)
-    delete = 'docker run -it --rm \
-        --name copy_rawdata \
-        -v "'+options["Illumina_m"]+':/home/rawdata/" \
-        christophevde/ubuntu_bash:v2.2_stable \
-        /home/Scripts/02_delete_rawdata.sh'
-    os.system(delete)
-#-----------------------------------------------------------------------------------------------------------
-
-# mount both the rawdata and the results folder-------------------------------------------------------------
-else:
-    copy = 'docker run -it --rm \
-        --name copy_rawdata \
-        -v "'+options["Illumina_m"]+':/home/rawdata/" \
-        -v "'+options["Results_m"]+':/home/Pipeline/" \
-        christophevde/ubuntu_bash:v2.2_stable \
-        /home/Scripts/01_copy_rawdata.sh'
-    os.system(copy)
-# execute snakemake docker
-    os.system(snake)
+os.system(snake)
+#REMOVE DUPLICATE RAWDATA FILES-----------------------------------------------------------------------------
+# Delete the fastq.files in the original rawdata/ folder (they have been copied to 00_Rawdata/).
+# This is the final step because otherwise snakemake would complain over missing files if it was terminated 
+# mid analysis and needs to continue on a different time
+delete = 'docker run -it --rm \
+    --name copy_rawdata \
+    -v "'+options["Illumina_m"]+':/home/rawdata/" \
+    -v "'+options["Scripts_m"]+':/home/Scripts/" \
+    christophevde/ubuntu_bash:v2.2_stable \
+    /bin/bash -c "dos2unix /home/Scripts/02_delete_rawdata.sh \
+    && /home/Scripts/02_delete_rawdata.sh"'
+os.system(delete)
 #===========================================================================================================
 
 #TIMER END==================================================================================================
 end = datetime.datetime.now()
 timer = end - start
 #conver to human readable
-
 print("Analysis took: {} (H:MM:SS) \n".format(timer))
 #===========================================================================================================

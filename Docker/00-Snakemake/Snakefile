@@ -12,6 +12,12 @@ for line in env.readlines():
     # GET LOCATIONS-----------------------------------------------------------------------------------------
     if "Results_m=" in line:
         Results_m = line.replace("Results_m=",'').replace('\n','')
+    elif "Scripts_m=" in line:
+        Scripts_m = line.replace("Scripts_m=",'').replace('\n','')
+    elif "Adaptor_m=" in line:
+        Adaptor_m = line.replace("Adaptor_m=",'').replace('\n','')
+    elif "Threads=" in line:
+        Threads = line.replace("Threads=",'').replace('\n','')
 env.close()
 #-----------------------------------------------------------------------------------------------------------
 
@@ -56,8 +62,10 @@ rule fastqc_raw:
         'docker run -it --rm \
         --name fastqc_raw \
         -v "{Results_m}:/home/Pipeline/" \
+        -v "{Scripts_m}/02-FastQC:/home/Scripts/"
         christophevde/fastqc:v2.2_stable \
-        /home/Scripts/QC01_fastqcRawData.sh'
+        /bin/bash -c "dos2unix /home/Scripts/QC01_fastqcRawData.sh \
+        && /home/Scripts/QC01_fastqcRawData.sh {Threads}"'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step3: running multiqc on the raw-data in the current-analysis folder
@@ -74,8 +82,10 @@ rule multiqc_raw:
         'docker run -it --rm \
         --name multiqc_raw \
         -v "{Results_m}:/home/Pipeline/" \
+        -v "{Scripts_m}/03-MultiQC:/home/Scripts/"
         christophevde/multiqc:v2.2_stable \
-        /home/Scripts/QC01_multiqc_raw.sh'
+        /bin/bash -c "dos2unix /home/Scripts/QC01_multiqc_raw.sh \
+        && /home/Scripts/QC01_multiqc_raw.sh"'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step4: Trimming
@@ -94,8 +104,11 @@ rule Trimming:
         'docker run -it --rm \
         --name trimmomatic \
         -v "{Results_m}:/home/Pipeline/" \
+        -v "{Adaptor_m}:/home/adapters/"
+        -v "{Scripts_m}/04-Trimmomatic:/home/Scripts/"
         christophevde/trimmomatic:v2.2_stable \
-        /home/Scripts/02_runTrimmomatic.sh'
+        /bin/bash -c "dos2unix /home/Scripts/02_runTrimmomatic.sh \
+        && /home/Scripts/02_runTrimmomatic.sh {Threads} {Adaptor}"'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step5: FastQC trimmed data (paired reads only)
@@ -112,8 +125,10 @@ rule fastqc_trimmed:
         'docker run -it --rm \
         --name fastqc_trim \
         -v "{Results_m}:/home/Pipeline/" \
+        -v "{Scripts_m}/02-FastQC:/home/Scripts/"
         christophevde/fastqc:v2.2_stable \
-        /home/Scripts/QC02_fastqcTrimmomatic.sh'
+        /bin/bash -c "dos2unix /home/Scripts/QC02_fastqcTrimmomatic.sh \
+        && /home/Scripts/QC02_fastqcTrimmomatic.sh {Threads}"'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step6: MultiQC trimmed data (paired reads only) 
@@ -129,8 +144,10 @@ rule multiqc_trimmed:
         'docker run -it --rm \
         --name multiqc_trim \
         -v "{Results_m}:/home/Pipeline/" \
+        -v "{Scripts_m}/03-MultiQC:/home/Scripts/"
         christophevde/multiqc:v2.2_stable \
-        /home/Scripts/QC02_multiqcTrimmomatic.sh'
+        /bin/bash -c "dos2unix /home/Scripts/QC02_multiqcTrimmomatic.sh \
+        && /home/Scripts/QC02_multiqcTrimmomatic.sh"'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step7: SPAdes
@@ -149,8 +166,10 @@ rule Spades_InputPathogenwatch:
         'docker run -it --rm \
         --name spades \
         -v "{Results_m}:/home/Pipeline/" \
+        -v "{Scripts_m}/05-Spades:/home/Scripts/"
         christophevde/spades:v2.2_stable \
-        /home/Scripts/03_spades.sh'
+        /bin/bash -c "dos2unix /home/Scripts/03_spades.sh \
+        && /home/Scripts/03_spades.sh {Threads}"'
 
 #-----------------------------------------------------------------------------------------------------------
 #===========================================================================================================
