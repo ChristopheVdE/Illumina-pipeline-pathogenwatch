@@ -262,8 +262,7 @@ snake = 'docker run -it --rm \
     -v "'+options["Scripts_m"]+'/00-Snakemake/copy_log.sh:/home/Scripts/copy_log.sh" \
     christophevde/snakemake:v2.3_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; \
-    chmod 755 /home/Snakemake/ \
-    dos2unix -q /home/Scripts/copy_log.sh && /home/Scripts/copy_log.sh"'
+    dos2unix -q /home/Scripts/copy_log.sh && chmod 755 /home/Scripts/copy_log.sh && /home/Scripts/copy_log.sh"'
 os.system(snake)
 #REMOVE DUPLICATE RAWDATA FILES-----------------------------------------------------------------------------
 # Delete the fastq.files in the original rawdata/ folder (they have been copied to 00_Rawdata/).
