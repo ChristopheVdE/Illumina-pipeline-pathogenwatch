@@ -1,6 +1,6 @@
 # Pipeline for analysis of S.typhi with Illumina data
 ## Introduction
-Containerised analysis pipeline for Salmonella thypi using Docker containers and the Snakemake tool.
+Containerised analysis pipeline for Illumina-Short-reads using Docker containers and the Snakemake tool.
 ## Installation
 In order to run the pipeline, the following steps need to be preformed.
 ### Install Docker
@@ -32,10 +32,14 @@ In order to run the pipeline, the following steps need to be preformed.
  
 ## Pipeline
 ### Starting the pipeline
-In Order to start the pipeline you only really need 1 file ("get_environment.py") provided in this repository which you can execute through the command line. For those not familliar with a command line interface, there are 2 'auto-run scripts' provided, one for Windows users and one for Linux users:
-
+In Order to run the pipeline you need the scripts folder and the "get_environment.py" file provided in this repository. For those not familliar with a command line interface, there are 2 'auto-run scripts' provided, one for Windows users and one for Linux users:
 - For Linux/ MacOS users: LINUX_run-pipeline.sh
 - For Windows users: WINDOWS_run-pipeline.cmd
+
+For those that are familiar with the command line, you can run the "get_environment.py" script with the required input given as extra command line arguments allowing you to skip the input questions. The amount of threads and the adaptor file are optional, if not provided the script will use the build in defaults.
+
+       python3 <path to get_environment.py> <path to rawdata> <path to desired results folder> <ammount of threads> <path to adaptor file for trimming>
+*for Windows: replace python3 with python.exe*
 
 For Linux/ MacOS users: the file permissions of the scripts might be changed after downloading. They should have executable rights in order to work. Enter "chmod 755 Linux_run-pipeline.sh" in a terminal to fix this. This guide give a non-terminal alternative for Mac-users, justkeep in mind that the file permissions should include 'execute' rights http://www.macinstruct.com/node/415.
 
@@ -105,8 +109,26 @@ the resulting file structure should look like this, with all rawdata and analysi
        |--Snakemake_logs
         
 ## Usefull commands:
-  - to build containers out of the image-files (dockerfiles): $docker build --tag="imagename":"version" .
-  - to run the created image: $docker run -it --rm "imagename":"version" "command"
-  - to list all Docker images found on the host: $docker image ls
-  - to list all container currently running on the host: $docker container ls
-  - to remove a Docker image from the host: $docker image rm "imagename":"version"
+  - to build containers out of the image-files (dockerfiles): 
+          
+          docker build --tag="imagename":"version" .
+    
+  - to run the created image:
+  
+          docker run -it --rm "imagename":"version" "command"
+      
+  - to list all Docker images found on the host: 
+  
+          docker image ls
+          
+  - to list all container currently running on the host: 
+  
+          docker container ls
+          
+  - to remove/ stop containers that are currently running on the host: 
+  
+         docker container rm -f <container name>
+         
+  - to remove a Docker image from the host: 
+  
+         docker image rm "imagename":"version"
