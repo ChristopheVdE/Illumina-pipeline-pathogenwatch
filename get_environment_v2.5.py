@@ -58,11 +58,11 @@ def docker_recources(system, HyperV):
 #===========================================================================================================
 
 #FETCH OS-TYPE==============================================================================================
-print("Please wait while the Script fetches some system info.")
+print("Please wait while the Script fetches some system info:")
 system=platform.system()
 if "Windows" in system:
     system = "Windows"
-    print("\nWindows based system detected ({})\n".format(system))
+    print("  - Windows based system detected ({})".format(system))
     # check if HyperV is enabled (indication of docker Version, used to give specific tips on preformance increase)
     HV = subprocess.Popen('powershell.exe get-service | findstr vmcompute', shell=True, stdout=subprocess.PIPE) 
     for line in HV.stdout:  
@@ -72,10 +72,10 @@ if "Windows" in system:
             HyperV="False"
 elif "Darwin" in system:
     system = "MacOS"
-    print("\nMacOS based system detected ({})\n".format(system))
+    print("  - MacOS based system detected ({})".format(system))
 else:
     system = "UNIX"
-    print("\nUNIX based system detected ({})\n".format(system))
+    print("  - UNIX based system detected ({})".format(system))
 #===========================================================================================================
 
 # GET MAX THREADS===========================================================================================
@@ -86,6 +86,7 @@ else:
     # The number of threads available to docker should be the same as the total number of threads available on the HOST
     # --> extra limitation is needed in order to not slow down the PC to much (reserve CPU for host)
 # TOTAL THREADS OF HOST-------------------------------------------------------------------------------------
+print("  - Fetching amount of threads on system")
 if system == "Windows":
     host = subprocess.Popen('WMIC CPU Get NumberOfLogicalProcessors', shell=True, stdout=subprocess.PIPE)
 elif system == "MacOS":
@@ -129,20 +130,21 @@ try:
     except:
         print("Adaptors not specified, using build in adaptor file for trimming")
         options["Adaptors"] = options["Scripts"]+'/04-Trimmomatic/NexteraPE-PE.fa'
-#LOCATIONS--------------------------------------------------------------------------------------------------
+#SHOW TIPS--------------------------------------------------------------------------------------------------
 except:
     if system == "Windows":
         tips = input("\nDo you want to display tips when appropriate? (y/n): ").lower()
     else:
         tips = 'n'
+#LOCATIONS--------------------------------------------------------------------------------------------------
     print("\nLOCATION INFO"+"-"*50)
     if tips == 'y':
         drive_acces(system, HyperV)
-    print("\nBefore submitting the locations, please check wheter upper and lower case letters are correct")
-    options["Illumina"] = input("\nInput the full path/location of the folder with the raw-data to be analysed:\n")
-    options["Results"] = input("\nInput the full path/location of the folder where you want to save the analysis result:\n")
-    options["Adaptors"] = input("\nInput the full path/location of the multifasta containing the adapter-sequences to trim. \
-        \n Press ENTER to use the build in adapter file for trimming.")
+    print("Before submitting the locations, please check wheter upper and lower case letters are correct")
+    options["Illumina"] = input("Input the full path/location of the folder with the raw-data to be analysed:\n")
+    options["Results"] = input("Input the full path/location of the folder where you want to save the analysis result:\n")
+    options["Adaptors"] = input("Input the full path/location of the multifasta containing the adapter-sequences to trim. \
+        \nPress ENTER to use the build in adapter file for trimming.\n")
     options["Scripts"] = os.path.dirname(os.path.realpath(__file__)) + "/Docker"
 #CHECK FOR ADAPTER INPUT, USE DEFAULT IF NOT PROVIDED--------------------------------------------------------
     if options["Adaptors"] == '':
@@ -231,7 +233,7 @@ if options["Illumina"] == options["Results"]:
         -v "'+options["Illumina_m"]+':/home/rawdata/" \
         -v "'+options["Scripts_m"]+'/01-Bash:/home/Scripts/" \
         christophevde/ubuntu_bash:v2.2_stable \
-        /bin/bash -c "dos2unix /home/Scripts/01_move_rawdata.sh \
+        /bin/bash -c "dos2unix -q /home/Scripts/01_move_rawdata.sh \
         && /home/Scripts/01_move_rawdata.sh"'
     os.system(move)
 else:
@@ -242,10 +244,9 @@ else:
         -v "'+options["Results_m"]+':/home/Pipeline/" \
         -v "'+options["Scripts_m"]+'/01-Bash:/home/Scripts/" \
         christophevde/ubuntu_bash:v2.2_stable \
-        /bin/bash -c "dos2unix /home/Scripts/01_copy_rawdata.sh \
+        /bin/bash -c "dos2unix -q /home/Scripts/01_copy_rawdata.sh \
         && /home/Scripts/01_copy_rawdata.sh"'
     os.system(copy)
-print("Done\n")
 #EXECUTE SNAKEMAKE DOCKER CONTAINER-------------------------------------------------------------------------
 # Mounting the snakefile as a file (needs to have a pre-existing file in container to override), will prevent
 # the .snakemake folder to be mounted back onto the host by the container reducing useless files
@@ -258,7 +259,7 @@ snake = 'docker run -it --rm \
     -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/" \
     christophevde/snakemake:v2.3_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; \
-    dos2unix /home/Scripts/copy_log.sh && /home/Scripts/copy_log.sh"'
+    dos2unix -q /home/Scripts/copy_log.sh && /home/Scripts/copy_log.sh"'
 os.system(snake)
 #REMOVE DUPLICATE RAWDATA FILES-----------------------------------------------------------------------------
 # Delete the fastq.files in the original rawdata/ folder (they have been copied to 00_Rawdata/).

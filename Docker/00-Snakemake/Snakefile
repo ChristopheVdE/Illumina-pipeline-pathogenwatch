@@ -69,7 +69,7 @@ rule fastqc_raw:
         -v "{Results_m}:/home/Pipeline/" \
         -v "{Scripts_m}/02-FastQC:/home/Scripts/" \
         christophevde/fastqc:v2.2_stable \
-        /bin/bash -c "dos2unix /home/Scripts/QC01_fastqcRawData.sh \
+        /bin/bash -c "dos2unix -q /home/Scripts/QC01_fastqcRawData.sh \
         && /home/Scripts/QC01_fastqcRawData.sh {Threads}"'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ rule multiqc_raw:
         -v "{Results_m}:/home/Pipeline/" \
         -v "{Scripts_m}/03-MultiQC:/home/Scripts/" \
         christophevde/multiqc:v2.2_stable \
-        /bin/bash -c "dos2unix /home/Scripts/QC01_multiqc_raw.sh \
+        /bin/bash -c "dos2unix -q /home/Scripts/QC01_multiqc_raw.sh \
         && /home/Scripts/QC01_multiqc_raw.sh"'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ rule Trimming:
         -v "{Adaptors_m}:/home/adapters/" \
         -v "{Scripts_m}/04-Trimmomatic:/home/Scripts/" \
         christophevde/trimmomatic:v2.2_stable \
-        /bin/bash -c "dos2unix /home/Scripts/02_runTrimmomatic.sh \
+        /bin/bash -c "dos2unix -q /home/Scripts/02_runTrimmomatic.sh \
         && /home/Scripts/02_runTrimmomatic.sh {Threads} {Adaptors}"'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ rule fastqc_trimmed:
         -v "{Results_m}:/home/Pipeline/" \
         -v "{Scripts_m}/02-FastQC:/home/Scripts/" \
         christophevde/fastqc:v2.2_stable \
-        /bin/bash -c "dos2unix /home/Scripts/QC02_fastqcTrimmomatic.sh \
+        /bin/bash -c "dos2unix -q /home/Scripts/QC02_fastqcTrimmomatic.sh \
         && /home/Scripts/QC02_fastqcTrimmomatic.sh {Threads}"'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ rule multiqc_trimmed:
         -v "{Results_m}:/home/Pipeline/" \
         -v "{Scripts_m}/03-MultiQC:/home/Scripts/" \
         christophevde/multiqc:v2.2_stable \
-        /bin/bash -c "dos2unix /home/Scripts/QC02_multiqcTrimmomatic.sh \
+        /bin/bash -c "dos2unix -q /home/Scripts/QC02_multiqcTrimmomatic.sh \
         && /home/Scripts/QC02_multiqcTrimmomatic.sh"'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ rule Spades_InputPathogenwatch:
         -v "{Results_m}:/home/Pipeline/" \
         -v "{Scripts_m}/05-Spades:/home/Scripts/" \
         christophevde/spades:v2.2_stable \
-        /bin/bash -c "dos2unix /home/Scripts/03_spades.sh \
+        /bin/bash -c "dos2unix -q /home/Scripts/03_spades.sh \
         && /home/Scripts/03_spades.sh {Threads}"'
 
 #-----------------------------------------------------------------------------------------------------------
