@@ -57,7 +57,7 @@ The screen in which you need to input the paths looks like this:
 
 ![Screenshot](./Images/inputwindow_new.png)
 
-1)	Wheter or not you want to display tips (nr.2 and 4 in picture). This is a Window only option.
+1)	Wheter or not you want to display tips (nr.2 and 4 in picture). This is a Window only option as are the tips.
 3) The place where you need to input the rawdata and the results folder location. The adaptor file is optional, if ommited the script will use the buildin adaptor file for trimming ([adaptor-file](./Docker/04-Trimmomatic/NexteraPE-PE.fa)) These locations can easily be found by opening an explorer, navigating to the files and copying the path from there (most of the time the path will be displayed at the top of the screen). Please make sure that there are no spaces in the path to these locations.
 2)	A message displaying the paths/locations to the files. This message changes a little bit depending on the OS u are using
 3)	This are some Windows specific tips on how to give more recourses to docker
