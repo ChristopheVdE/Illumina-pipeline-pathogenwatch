@@ -41,23 +41,24 @@ For those that are familiar with the command line, you can run the "get_environm
        python3 <path to get_environment.py> <path to rawdata> <path to desired results folder> <ammount of threads> <path to adaptor file for trimming>
 *for Windows: replace python3 with python.exe*
 
+#### UNIX/ MacOS
 For Linux/ MacOS users: the file permissions of the scripts might be changed after downloading. They should have executable rights in order to work. Enter "chmod 755 Linux_run-pipeline.sh" in a terminal to fix this. This guide give a non-terminal alternative for Mac-users, justkeep in mind that the file permissions should include 'execute' rights http://www.macinstruct.com/node/415.
 
 Afterwards you might still need to specify that the file needs to be opened witht the terminal, this can be done like this:
 1)	The actual place where you need to input the rawdata-location
 2)	A message displaying the paths/locations to the files. You will have a slightly different message because you are using a Mac. Your message should be something similar to “Unix based system discovered, paths don’t need conversion”.
-3)	This are some Windows specific tips so you shouldn’t see these lines
-4)	This is another input field to specify the threads/ CPU to be used for the analysis. This a more advanced option, I suggest that you just press enter and go with the suggested amount of threads when this question comes up.
-5)	If everything goes well you should see this orange text indicating that the analysis is starting.
+5)	This is another input field to specify the threads/ CPU to be used for the analysis. This a more advanced option, I suggest that you just press enter and go with the suggested amount of threads when this question comes up.
+6)	If everything goes well you should see this orange text indicating that the analysis is starting.
 
-You should now be able to execute the scripts by double clicking on them, after which each of them should ask for the location of the rawdata (see picture below). 
+You should now be able to execute the scripts by double clicking on them, after which each of them should ask for a few locations to files (see picture below). 
 
 ### The input screen
-The screen in which you need to input the path looks like this:
+The screen in which you need to input the paths looks like this:
 
-![Screenshot](./Images/inputwindow.png)
+![Screenshot](./Images/inputwindow_new.png)
 
-1)	The place where you need to input the rawdata-location. These locations can easily be found by opening an explorer, navigating to the files and copying the path from there (most of the time the path will be displayed at the top of the screen). Please make sure that there are no spaces in the path to these locations.
+1)	Wheter or not you want to display tips (nr.2 and 4 in picture). This is a Window only option.
+3) The place where you need to input the rawdata and the results folder location. The adaptor file is optional, if ommited the script will use the buildin adaptor file for trimming ([adaptor-file](./Docker/04-Trimmomatic/NexteraPE-PE.fa)) These locations can easily be found by opening an explorer, navigating to the files and copying the path from there (most of the time the path will be displayed at the top of the screen). Please make sure that there are no spaces in the path to these locations.
 2)	A message displaying the paths/locations to the files. This message changes a little bit depending on the OS u are using
 3)	This are some Windows specific tips on how to give more recourses to docker
 4)	This is another input field to specify the threads/ CPU to be used for the analysis. This a more advanced option, if you don't know what this does then you should just press enter and go withteh suggested amount of threads.
@@ -67,10 +68,10 @@ When the analysis is complete you will get message displayed in the command line
 
 **WINDOWS**: before activating the scripts you will need to start docker. If you use docker-toolbox doudble click on the 'Docker quickstart terminal' shortcut to start up Docker. If you use 'Docker for windows/ Docker Desktop' or are using Linux, then docker will (probably) automatically start up during system startup and you can just run the scripts.
 
-The other files found in this repository are the codes used to create the Docker images for the containers and the scripts that are loaded into these containers. You don't need these since the containers will automatically be downloaded and 'installed' when the pipeline is ran for the first time (download from Docker-HUB).
+The other files found in this repository are the codes used to create the Docker images for the containers. You don't need these since the containers will automatically be downloaded and 'installed' when the pipeline is ran for the first time (download from Docker-HUB).
 
 ### Preformed steps
-The Pipline is controlled by Snakemake, which itself is being ran in a container. Snakemake will read the rules/steps specified in the Snakefile and chain them togheter in the correct order for the analysis. 
+The Pipline is controlled by Snakemake, which itself is being ran in a container. Snakemake will read the rules/steps specified in the Snakefile and chain them togheter in the correct order for the analysis, while monitoring in and output for each step. 
 
 Snakemake will preform the following steps durig the analysis. Each step is specified as a rule in the Snakefile and will be executed in a docker container created for that specific task:
 
