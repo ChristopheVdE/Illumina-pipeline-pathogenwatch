@@ -193,6 +193,7 @@ if system=="Windows":
 else:
     print("\nUNIX paths shouldn't require a conversion for use in Docker:")
     for key, value in options_copy.items():
+        options[key] = value
         if not key in not_convert:
             options[key+"_m"] = value
             print(" - "+ key +" location ({}) changed to: {}".format(str(options[key]),str(options[key+"_m"])))
@@ -234,6 +235,7 @@ if options["Illumina"] == options["Results"]:
         -v "'+options["Scripts_m"]+'/01-Bash:/home/Scripts/" \
         christophevde/ubuntu_bash:v2.2_stable \
         /bin/bash -c "dos2unix -q /home/Scripts/01_move_rawdata.sh \
+        && chmod 755 /home/Scripts/01_move_rawdata.sh \
         && /home/Scripts/01_move_rawdata.sh"'
     os.system(move)
 else:
@@ -245,6 +247,7 @@ else:
         -v "'+options["Scripts_m"]+'/01-Bash:/home/Scripts/" \
         christophevde/ubuntu_bash:v2.2_stable \
         /bin/bash -c "dos2unix -q /home/Scripts/01_copy_rawdata.sh \
+        chmod 755 /home/Scripts/01_copy_rawdata.sh \
         && /home/Scripts/01_copy_rawdata.sh"'
     os.system(copy)
 #EXECUTE SNAKEMAKE DOCKER CONTAINER-------------------------------------------------------------------------
@@ -259,6 +262,7 @@ snake = 'docker run -it --rm \
     -v "'+options["Scripts_m"]+'/00-Snakemake/copy_log.sh:/home/Scripts/copy_log.sh" \
     christophevde/snakemake:v2.3_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; \
+    chmod 755 /home/Snakemake/ \
     dos2unix -q /home/Scripts/copy_log.sh && /home/Scripts/copy_log.sh"'
 os.system(snake)
 #REMOVE DUPLICATE RAWDATA FILES-----------------------------------------------------------------------------
