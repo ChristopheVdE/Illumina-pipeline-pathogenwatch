@@ -111,11 +111,11 @@ the resulting file structure should look like this, with all rawdata and analysi
 ## Usefull commands:
   - to build containers out of the image-files (dockerfiles): 
           
-          docker build --tag="imagename":"version" .
+          docker build --tag=<imagename>:<version> .
     
   - to run the created image:
   
-          docker run -it --rm "imagename":"version" "command"
+          docker run -it --rm <imagename>:<version> <command>
       
   - to list all Docker images found on the host: 
   
@@ -131,4 +131,4 @@ the resulting file structure should look like this, with all rawdata and analysi
          
   - to remove a Docker image from the host: 
   
-         docker image rm "imagename":"version"
+         docker image rm <imagename>:<version>
