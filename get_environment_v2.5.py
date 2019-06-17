@@ -37,7 +37,7 @@ def drive_acces(system, HyperV):
             print("   1) Right click on the Docker desktop icon in the taskbar and select 'Settings'")
             print("   2) Go to 'Shared Drives'")
             print("   3) Check to boxes for the drives you want docker to have acces to and press 'Apply'. Windows will ask for your password afther wich Docker will restart and the folders should be available")
-            print("[WARNING] Changing your Windows password can apparently break Docker's acces to the shared drives, just repeat the above steps and provide your new password to fix this")
+            print("[WARNING] Changing your Windows password can apparently break Docker's acces to the shared drives, just repeat the above steps and provide your new password to fix this\n")
 #TIPS TO MANAGE DOCKER RECOURCES----------------------------------------------------------------------------
 def docker_recources(system, HyperV):
     if system=="Windows":
