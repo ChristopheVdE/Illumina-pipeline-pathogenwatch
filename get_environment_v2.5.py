@@ -256,7 +256,7 @@ snake = 'docker run -it --rm \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "'+options["Results_m"]+':/home/Pipeline/" \
     -v "'+options["Scripts_m"]+'/00-Snakemake/Snakefile:/home/Snakemake/Snakefile" \
-    -v "'+options["Scripts_m"]+'/00-Snakemake:/home/Scripts/" \
+    -v "'+options["Scripts_m"]+'/00-Snakemake/copy_log.sh:/home/Scripts/copy_log.sh" \
     christophevde/snakemake:v2.3_stable \
     /bin/bash -c "cd /home/Snakemake/ && snakemake; \
     dos2unix -q /home/Scripts/copy_log.sh && /home/Scripts/copy_log.sh"'
