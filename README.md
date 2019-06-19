@@ -1,4 +1,4 @@
-# Pipeline for analysis of S.typhi with Illumina data
+# Pipeline for creation of assembly to be analyzed in pathogenwatch
 ## Introduction
 Containerised analysis pipeline for Illumina-Short-reads using Docker containers and the Snakemake tool.
 ## Installation
