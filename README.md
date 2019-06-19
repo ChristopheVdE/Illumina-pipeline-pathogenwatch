@@ -1,4 +1,4 @@
-# Pipeline for creation of assembly to be analyzed in pathogenwatch
+# Pipeline to create assembly's for pathogenwatch
 ## Introduction
 Containerised analysis pipeline for Illumina-Short-reads using Docker containers and the Snakemake tool.
 ## Installation
