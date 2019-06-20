@@ -10,11 +10,12 @@
 #VARIABLES--------------------------------------------------------------------------------------------------
 # inputFolder = /home/{id}/03_QC-Trimmomatic_Paired/QC_FastQC
 # outputFolder = /home/{id}/03_QC-Trimmomatic_Paired/QC_MultiQC
+run=$1
 #----------------------------------------------------------------------------------------------------------
 
 #MultiQC PRE-START------------------------------------------------------------------------------------------
 #Fix possible EOL errors in sampleList.txt
-dos2unix /home/Pipeline/sampleList.txt
+dos2unix -q /home/Pipeline/sampleList.txt
 #-----------------------------------------------------------------------------------------------------------
 
 #===========================================================================================================
@@ -25,7 +26,6 @@ dos2unix /home/Pipeline/sampleList.txt
 # create temp folder in container (will automatically be deleted when container closes)
 mkdir -p /home/fastqc-results
 # create outputfolder MultiQC full run trimmed data
-run="RUN_"`date +%Y%m%d`
 mkdir -p /home/Pipeline/QC_MultiQC/${run}/QC-Trimmed
 #-----------------------------------------------------------------------------------------------------------
 

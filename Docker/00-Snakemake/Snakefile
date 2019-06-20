@@ -23,6 +23,8 @@ for line in env.readlines():
         Adaptors_m = Adaptors_m.replace(Adaptors,'')
     elif "Threads=" in line:
         Threads = line.replace("Threads=",'').replace('\n','')
+    elif "Run=" in line:
+        Run = line.replace("Run=",'').replace('\n','')
 env.close()
 #-----------------------------------------------------------------------------------------------------------
 
@@ -92,7 +94,7 @@ rule multiqc_raw:
         christophevde/multiqc:v2.2_stable \
         /bin/bash -c "dos2unix -q /home/Scripts/QC01_multiqc_raw.sh \
         && chmod 755 /home/Scripts/QC01_multiqc_raw.sh \
-        && /home/Scripts/QC01_multiqc_raw.sh"'
+        && /home/Scripts/QC01_multiqc_raw.sh {Run}"'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step4: Trimming
@@ -157,7 +159,7 @@ rule multiqc_trimmed:
         christophevde/multiqc:v2.2_stable \
         /bin/bash -c "dos2unix -q /home/Scripts/QC02_multiqcTrimmomatic.sh \
         && chmod 755 /home/Scripts/QC02_multiqcTrimmomatic.sh \
-        && /home/Scripts/QC02_multiqcTrimmomatic.sh"'
+        && /home/Scripts/QC02_multiqcTrimmomatic.sh {Run}"'
 
 #-----------------------------------------------------------------------------------------------------------
 # Pipeline step7: SPAdes

@@ -17,6 +17,7 @@ import os
 from pathlib import Path
 import string
 import sys
+from datetime import date
 #===========================================================================================================
 
 #FUNCTIONS: TIPS============================================================================================
@@ -117,9 +118,10 @@ print("Done")
 options = {}
 #TEST FOR COMMAND LINE ARGUMENTS----------------------------------------------------------------------------
 try:
-    options["Scripts"] = os.path.dirname(os.path.realpath(__file__)) + "/Docker"
     options["Illumina"] = sys.argv[1]
     options["Results"] = sys.argv[2]
+    options["Scripts"] = os.path.dirname(os.path.realpath(__file__)) + "/Docker"
+    options["Run"] = date.today().strftime("%Y%m%d")
     try:
         options["Threads"] = sys.argv[3]
     except:
@@ -178,7 +180,7 @@ for i in folders:
 #CONVERT MOUNT_PATHS (INPUT) IF REQUIRED====================================================================  
 options_copy = options
 options = {}
-not_convert = ["Threads",]
+not_convert = ["Threads","Run"]
 if system=="Windows":
     print("\nConverting Windows paths for use in Docker:")
     for key, value in options_copy.items():
@@ -199,6 +201,16 @@ else:
             print(" - "+ key +" location ({}) changed to: {}".format(str(options[key]),str(options[key+"_m"])))
 #===========================================================================================================
 
+# WRITE INPUT FILE==========================================================================================
+loc = open(options["Results"]+"/environment.txt", mode="w")
+for key, value in options.items():
+    if not key == "Threads":
+        loc.write(key+"="+value+"\n")
+    else:
+        loc.write(key+"="+value)  
+loc.close()
+#===========================================================================================================
+
 # CREATE SAMPLE LIST========================================================================================
 # READ DIRECTORY CONTENT------------------------------------------------------------------------------------
 ids =[]
@@ -211,16 +223,6 @@ file = open(options["Results"]+"/sampleList.txt",mode="w")
 for i in ids:
     file.write(i+"\n")
 file.close()
-#===========================================================================================================
-
-# WRITE INPUT FILE==========================================================================================
-loc = open(options["Results"]+"/environment.txt", mode="w")
-for key, value in options.items():
-    if not key == "Threads":
-        loc.write(key+"="+value+"\n")
-    else:
-        loc.write(key+"="+value)  
-loc.close()
 #===========================================================================================================
 
 #EXECUTE PIPELINE===========================================================================================
