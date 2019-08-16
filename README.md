@@ -1,4 +1,10 @@
 # Pipeline to create assembly's for pathogenwatch
+
+## WARNING
+**This pipeline/ code was written for my bioinformatics-insternship in the Insititute of Tropical Medicine in Antwerp (Belgium). 
+Please contact them if you want to use this pipeline and get the latest version.**
+
+
 ## Introduction
 Containerised analysis pipeline for Illumina-Short-reads using Docker containers and the Snakemake tool.
 ## Installation
