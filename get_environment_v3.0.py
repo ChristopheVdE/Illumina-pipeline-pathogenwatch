@@ -11,6 +11,7 @@ start = datetime.datetime.now()
 #===========================================================================================================
 
 #IMPORT PACKAGES============================================================================================
+#STANDARD PYTHON PACKAGES-----------------------------------------------------------------------------------
 import platform
 import subprocess
 import os
@@ -18,6 +19,12 @@ from pathlib import Path
 import string
 import sys
 from datetime import date
+#OTHER PACKAGES---------------------------------------------------------------------------------------------
+reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+if not 'asciimatrics' in installed_packages:
+    os.system('pip install asciimatrics')
+import npyscreen
 #===========================================================================================================
 
 #FUNCTIONS: TIPS============================================================================================
